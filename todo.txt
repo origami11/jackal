@@ -1,0 +1,30 @@
+﻿https://jackal.su
+
+card flip css
+https://desandro.github.io/3dtransforms/docs/card-flip.html
+
+1. Тип карты - количество. Создать с изображенями. Перемешать. Сделать возможность переворачивать при наведении или нажатии.
+
+    Empty1 * 5 
+    + Empty2 * 5 
+    + Empty3 * 4 
+    + Empty4 * 4
+
+    Arrow1 * 3 
+    + Arrow2 * 3 
+    + Arrow3 * 3 
+    + Arrow4 * 3
+    + Arrow5 * 3
+    + Arrow6 * 3
+    + Arrow7 * 3
+
+    Horse * 2
+
+    Rotate2n * 5 
+    + Rotate3n * 4 
+    + Rotate4n * 2 
+    + Rotate5n * 1
+
+    Ice * 6
+
+    

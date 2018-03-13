@@ -65,6 +65,9 @@ class Card {
         this.element.style.height = this.size + 'px';
         this.element.style.backgroundImage = 'url(images/' + image + '.png)';
 
+        var angle = Math.round(Math.random()*3)*90;
+        this.element.style.transform = 'rotate('+angle+'deg)';
+
         console.log(image);
 
         this.x = 0;
@@ -167,6 +170,46 @@ class Default extends Card {
     constructor() { super('default'); }    
 }
 
+class Gold1 extends Card {
+    constructor() { super('gold_01'); }    
+}
+
+class Gold2 extends Card {
+    constructor() { super('gold_02'); }    
+}
+
+class Gold3 extends Card {
+    constructor() { super('gold_03'); }    
+}
+
+class Gold4 extends Card {
+    constructor() { super('gold_04'); }    
+}
+
+class Gold5 extends Card {
+    constructor() { super('gold_05'); }    
+}
+
+class Girl extends Card {
+    constructor() { super('girl'); }    
+}
+
+class Plane extends Card {
+    constructor() { super('plane'); }    
+}
+
+class Rum extends Card {
+    constructor() { super('rum'); }    
+}
+
+class Horse extends Card {
+    constructor() { super('horse'); }    
+}
+
+class Fortress extends Card {
+    constructor() { super('fortress'); }    
+}
+
 class GameBoard {  
     constructor(w, h) {
         this.width = w;
@@ -177,12 +220,18 @@ class GameBoard {
             [Empty1, 5], [Empty2, 5], [Empty3, 4], [Empty4, 4], 
             [Arrow1, 3], [Arrow2, 3], [Arrow3, 3], [Arrow4, 3], [Arrow5, 3], [Arrow6, 3], [Arrow7, 3],  
             [Ice, 6], 
+            [Girl, 1], 
             [Trap, 3], 
             [Alligator, 4], 
             [Balloon, 2], 
             [Cannon, 2], 
+            [Horse, 2], 
+            [Fortress, 2], 
+            [Rum, 4], 
+            [Plane, 1], 
+            [Gold1, 5], [Gold2, 5], [Gold3, 3], [Gold4, 2], [Gold5, 1],
             [Rotate2n, 5], [Rotate3n, 4], [Rotate4n, 2], [Rotate5n, 1], 
-            [Default, 11*11-4-(5*2+4*2)-(7*3)-6-(5+4+2+1)-3-4-2-2]
+            [Default, 11*11-4-(5*2+4*2)-(7*3)-6-(5+4+2+1)-3-4-2-2-(5+5+3+2+1)-1-1-4-2-2]
         ];
         this.deck = [];
 

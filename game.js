@@ -1,5 +1,8 @@
 ﻿(function () {
 
+const cellSize = 72;
+//const cellSize = 164;
+
 function shuffle(array) {
     let counter = array.length;
 
@@ -19,9 +22,6 @@ function shuffle(array) {
 
     return array;
 }
-
-const cellSize = 72;
-//const cellSize = 164;
 
 class Person {
     constrcutor() {
@@ -53,22 +53,47 @@ class Player {
     }
 }
 
+function m(tag, className, style) {
+    var element = document.createElement(tag);
+    element.className = className;            
+    for(var i in style) {
+        if (style.hasOwnProperty(i)) {
+            element.style[i] = style[i];
+        }
+    }
+
+    return element;
+}
+
 class Card {    
     constructor(image) {
         this.size = cellSize;
         this.isOpen = false;
 
-        this.element = document.createElement('div');
-        this.element.className = 'card';        
+        this.element = m('div', 'container', {
+            width: this.size + 'px',
+            height: this.size + 'px'
+        });
 
-        this.element.style.width = this.size + 'px';
-        this.element.style.height = this.size + 'px';
-        this.element.style.backgroundImage = 'url(images/' + image + '.png)';
+        var card = m('div', 'card', { });
 
-        var angle = Math.round(Math.random()*3)*90;
-        this.element.style.transform = 'rotate('+angle+'deg)';
+        var back = m('figure', 'back', {
+            backgroundImage: 'url(images/' + image + '.png)'            
+        });
 
-        console.log(image);
+        var front = m('figure', 'front', {
+            backgroundImage: 'url(images/default.png)'            
+        });
+
+        card.appendChild(front);
+        card.appendChild(back);
+
+        this.element.appendChild(card);
+
+//        var angle = Math.round(Math.random()*3)*90;
+//        this.element.style.transform = 'rotate('+angle+'deg)';
+
+//        console.log(image);
 
         this.x = 0;
         this.y = 0;
@@ -210,6 +235,10 @@ class Fortress extends Card {
     constructor() { super('fortress'); }    
 }
 
+class Cannibal extends Card {
+    constructor() { super('cannibal'); }    
+}
+
 class GameBoard {  
     constructor(w, h) {
         this.width = w;
@@ -217,22 +246,23 @@ class GameBoard {
         this.colors = ['white', 'red', 'yellow', 'green'];
 
         this.cards = [
-            [Empty1, 5], [Empty2, 5], [Empty3, 4], [Empty4, 4], 
+            [Empty1, 10], [Empty2, 10], [Empty3, 10], [Empty4, 10], 
             [Arrow1, 3], [Arrow2, 3], [Arrow3, 3], [Arrow4, 3], [Arrow5, 3], [Arrow6, 3], [Arrow7, 3],  
             [Ice, 6], 
             [Girl, 1], 
             [Trap, 3], 
             [Alligator, 4], 
             [Balloon, 2], 
+            [Cannibal, 1], 
             [Cannon, 2], 
             [Horse, 2], 
             [Fortress, 2], 
             [Rum, 4], 
             [Plane, 1], 
             [Gold1, 5], [Gold2, 5], [Gold3, 3], [Gold4, 2], [Gold5, 1],
-            [Rotate2n, 5], [Rotate3n, 4], [Rotate4n, 2], [Rotate5n, 1], 
-            [Default, 11*11-4-(5*2+4*2)-(7*3)-6-(5+4+2+1)-3-4-2-2-(5+5+3+2+1)-1-1-4-2-2]
+            [Rotate2n, 5], [Rotate3n, 4], [Rotate4n, 2], [Rotate5n, 1] 
         ];
+
         this.deck = [];
 
         this.activePlayer = 0;
@@ -249,11 +279,21 @@ class GameBoard {
     }
 
     makeDeck() {
+        var count = this.width * this.height - 4;
+        var sum = 0;
+
         this.cards.forEach((card) => {
+            sum += card[1];
             for(var i = 0; i < card[1]; i++) {
                 this.deck.push(new card[0]());
             }
-        })
+        });
+
+        for(var i = 0; i < count-sum; i++) {  
+            this.deck.push(new Default());
+        }
+
+        console.log(sum, count - sum);
 
         this.deck = shuffle(this.deck);
     }

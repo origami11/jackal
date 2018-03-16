@@ -97,10 +97,18 @@ class Card {
         this.card = m('div', 'card', { });
 
         var back = m('figure', 'back', {
+            width: (this.size - 2) + 'px',
+            height: (this.size - 2) + 'px',
+            top: '1px',
+            left: '1px',
             backgroundImage: 'url(images/' + image + '.png)'            
         });
 
         var front = m('figure', 'front', {
+            width: (this.size - 2) + 'px',
+            height: (this.size - 2) + 'px',
+            top: '1px',
+            left: '1px',
             backgroundImage: 'url(images/default.png)'            
         });
 
@@ -131,11 +139,23 @@ class Card {
         return (Math.abs(pirate.x - x) <= 1 && Math.abs(pirate.y - y) <= 1);
     }
 
+    updatePos(pirate) {
+        pirate.setXY(this.x, this.y);
+    }
+
+    setActive(flag) {
+        if (flag) {
+            this.element.classList.add('active');
+        } else {
+            this.element.classList.remove('active');;
+        }
+    }
+
     flip() {
         if (!this.isOpen) {
             this.isOpen = true;
             this.element.style.zIndex = 100;
-            this.card.className += ' flipped';
+            this.card.classList.add('flipped');
         }
     }
 }
@@ -175,7 +195,7 @@ class Arrow2 extends Card {
     }   
 
     nextMove(pirate, x, y) {
-        return pirate.x + 1 == x && pirate.y + 1 == y;
+        return pirate.x + 1 == x && pirate.y - 1 == y;
     }    
 }
 
@@ -198,8 +218,8 @@ class Arrow4 extends Card {
     }
 
     nextMove(pirate, x, y) {
-        return (pirate.x + 1 == x && pirate.y + 1 == y)
-            || (pirate.x - 1 == x && pirate.y - 1 == y);
+        return (pirate.x - 1 == x && pirate.y + 1 == y)
+            || (pirate.x + 1 == x && pirate.y - 1 == y);
     }    
 }
 
@@ -237,10 +257,10 @@ class Arrow7 extends Card {
     }
 
     nextMove(pirate, x, y) {
-        return (pirate.x - 1 == x && pirate.y - 1== y)
+        return (pirate.x + 1 == x && pirate.y - 1== y)
             || (pirate.x + 1 == x && pirate.y + 1 == y)
-            || (pirate.x + 1 == x && pirate.y + 1 == y)
-            || (pirate.x - 2 == x && pirate.y - 1 == y);
+            || (pirate.x - 1 == x && pirate.y + 1 == y)
+            || (pirate.x - 1 == x && pirate.y - 1 == y);
     }    
 }
 
@@ -332,12 +352,12 @@ class Horse extends Card {
         return (pirate.x + 2 == x && pirate.y + 1 == y)
             || (pirate.x + 2 == x && pirate.y - 1 == y)
             || (pirate.x - 2 == x && pirate.y + 1 == y)
-            || (pirate.x - 2 == x && pirate.y + 1 == y)
+            || (pirate.x - 2 == x && pirate.y - 1 == y)
 
             || (pirate.x + 1 == x && pirate.y + 2 == y)
             || (pirate.x + 1 == x && pirate.y - 2 == y)
             || (pirate.x - 1 == x && pirate.y + 2 == y)
-            || (pirate.x - 1 == x && pirate.y + 2 == y);
+            || (pirate.x - 1 == x && pirate.y - 2 == y);
     }
 }
 
@@ -395,16 +415,44 @@ class GameBoard {
             var p = this.players[this.activePlayer];
             var current = this.getCard(p.x, p.y);
 
-            if ((next && current && current.nextMove(p, x, y)) || (next && this.nextMove(p, x, y))) {
-                p.setXY(x, y);
+            if ((next && current && current.nextMove(p, x, y)) 
+                || (next && !current && this.nextMove(p, x, y))) {
+
                 next.flip();
+                next.updatePos(p);
+
+                // p.setXY(x, y);
                 if (!next.repeatMove) {
                     this.nextPlayer();
                 }
+                this.showMoves(this.players[this.activePlayer]);
             }
         });
 
         this.render();
+    }
+
+    showMoves(p) {
+        var card = this.getCard(p.x, p.y);
+        if (card) {
+            for(var x = 0; x < this.width; x++) {
+                for(var y = 0; y < this.height; y++) {
+                    var c = this.getCard(x, y);
+                    if (c) {
+                        c.setActive(card.nextMove(p, x, y));
+                    }
+                }
+            }
+        } else {
+            for(var x = 0; x < this.width; x++) {
+                for(var y = 0; y < this.height; y++) {
+                    var c = this.getCard(x, y);
+                    if (c) {
+                        c.setActive(this.nextMove(p, x, y));
+                    }
+                }
+            }
+        }
     }
 
     nextMove(pirate, x, y) {

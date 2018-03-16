@@ -47,9 +47,27 @@ class Ship {
 }
 
 class Player {
-    constructor(color) {
-        this.pirates = [new Person(), new Person(), new Person()];
-        this.ship = new Ship();
+    constructor(x, y, color) {    
+
+        this.element = m('div', 'player', {
+            width: cellSize + 'px',
+            height: cellSize + 'px'
+        });
+
+        this.image = m('div', 'player-image', {
+            background: color
+        });
+
+        this.element.appendChild(this.image);
+
+        this.setXY(x, y);
+    }
+
+    setXY(x, y) {
+        this.x = x;
+        this.y = y;
+        this.element.style.left = (x * cellSize) + 'px'
+        this.element.style.top = (y * cellSize) + 'px'
     }
 }
 
@@ -69,13 +87,14 @@ class Card {
     constructor(image) {
         this.size = cellSize;
         this.isOpen = false;
+        this.repeatMove = false;
 
         this.element = m('div', 'container', {
             width: this.size + 'px',
             height: this.size + 'px'
         });
 
-        var card = m('div', 'card', { });
+        this.card = m('div', 'card', { });
 
         var back = m('figure', 'back', {
             backgroundImage: 'url(images/' + image + '.png)'            
@@ -85,15 +104,17 @@ class Card {
             backgroundImage: 'url(images/default.png)'            
         });
 
-        card.appendChild(front);
-        card.appendChild(back);
+        this.card.appendChild(front);
+        this.card.appendChild(back);
 
-        this.element.appendChild(card);
+        this.element.appendChild(this.card);
+
+        this.card.addEventListener("transitionend", () => {
+            this.element.style.zIndex = 1;
+        }, false);
 
 //        var angle = Math.round(Math.random()*3)*90;
 //        this.element.style.transform = 'rotate('+angle+'deg)';
-
-//        console.log(image);
 
         this.x = 0;
         this.y = 0;
@@ -106,7 +127,16 @@ class Card {
         this.element.style.top = (y * this.size) + 'px'
     }
 
-    open() {
+    nextMove(pirate, x, y) {
+        return (Math.abs(pirate.x - x) <= 1 && Math.abs(pirate.y - y) <= 1);
+    }
+
+    flip() {
+        if (!this.isOpen) {
+            this.isOpen = true;
+            this.element.style.zIndex = 100;
+            this.card.className += ' flipped';
+        }
     }
 }
 
@@ -128,31 +158,90 @@ class Rotate5n extends Card {
 }
 
 class Arrow1 extends Card {
-    constructor() { super('arrow_01');  }    
+    constructor() { 
+        super('arrow_01');  
+        this.repeatMove = true;
+    } 
+
+    nextMove(pirate, x, y) {
+        return pirate.x + 1 == x && pirate.y == y;
+    }   
 }
 
 class Arrow2 extends Card {
-    constructor() { super('arrow_02');  }    
+    constructor() { 
+        super('arrow_02');  
+        this.repeatMove = true;
+    }   
+
+    nextMove(pirate, x, y) {
+        return pirate.x + 1 == x && pirate.y + 1 == y;
+    }    
 }
 
 class Arrow3 extends Card {
-    constructor() { super('arrow_03');  }    
+    constructor() { 
+        super('arrow_03');  
+        this.repeatMove = true;
+    }    
+
+    nextMove(pirate, x, y) {
+        return (pirate.x + 1 == x && pirate.y == y)
+            || (pirate.x - 1 == x && pirate.y == y);
+    }   
 }
 
 class Arrow4 extends Card {
-    constructor() { super('arrow_04');  }    
+    constructor() { 
+        super('arrow_04');  
+        this.repeatMove = true;
+    }
+
+    nextMove(pirate, x, y) {
+        return (pirate.x + 1 == x && pirate.y + 1 == y)
+            || (pirate.x - 1 == x && pirate.y - 1 == y);
+    }    
 }
 
 class Arrow5 extends Card {
-    constructor() { super('arrow_05');  }    
+    constructor() { 
+        super('arrow_05');  
+        this.repeatMove = true;
+    }    
+
+    nextMove(pirate, x, y) {
+        return (pirate.x - 1 == x && pirate.y - 1 == y)
+            || (pirate.x + 1 == x && pirate.y == y)
+            || (pirate.x  == x && pirate.y + 1 == y);
+    }
 }
 
 class Arrow6 extends Card {
-    constructor() { super('arrow_06');  }    
+    constructor() { 
+        super('arrow_06');  
+        this.repeatMove = true;
+    }    
+
+    nextMove(pirate, x, y) {
+        return (pirate.x - 1 == x && pirate.y == y)
+            || (pirate.x + 1 == x && pirate.y == y)
+            || (pirate.x == x && pirate.y + 1 == y)
+            || (pirate.x == x && pirate.y - 1 == y);
+    }
 }
 
 class Arrow7 extends Card {
-    constructor() { super('arrow_07');  }    
+    constructor() { 
+        super('arrow_07');  
+        this.repeatMove = true;
+    }
+
+    nextMove(pirate, x, y) {
+        return (pirate.x - 1 == x && pirate.y - 1== y)
+            || (pirate.x + 1 == x && pirate.y + 1 == y)
+            || (pirate.x + 1 == x && pirate.y + 1 == y)
+            || (pirate.x - 2 == x && pirate.y - 1 == y);
+    }    
 }
 
 class Empty1 extends Card {
@@ -220,15 +309,36 @@ class Girl extends Card {
 }
 
 class Plane extends Card {
-    constructor() { super('plane'); }    
+    constructor() { 
+        super('plane'); 
+    }    
+
+    nextMove(pirate, x, y) {
+        return true;
+    }
 }
 
 class Rum extends Card {
-    constructor() { super('rum'); }    
+    constructor() { super('rum'); }
 }
 
 class Horse extends Card {
-    constructor() { super('horse'); }    
+    constructor() { 
+        super('horse'); 
+        this.repeatMove = true;
+    }    
+
+    nextMove(pirate, x, y) {
+        return (pirate.x + 2 == x && pirate.y + 1 == y)
+            || (pirate.x + 2 == x && pirate.y - 1 == y)
+            || (pirate.x - 2 == x && pirate.y + 1 == y)
+            || (pirate.x - 2 == x && pirate.y + 1 == y)
+
+            || (pirate.x + 1 == x && pirate.y + 2 == y)
+            || (pirate.x + 1 == x && pirate.y - 2 == y)
+            || (pirate.x - 1 == x && pirate.y + 2 == y)
+            || (pirate.x - 1 == x && pirate.y + 2 == y);
+    }
 }
 
 class Fortress extends Card {
@@ -266,16 +376,56 @@ class GameBoard {
         this.deck = [];
 
         this.activePlayer = 0;
-        this.players = this.colors.map(c => new Player(c));
+        this.players = [
+            new Player(-1, 5, '#D32F2F'), 
+            new Player(5, -1, '#FBC02D'),
+            new Player(11, 5, '#388E3C'), 
+            new Player(5, 11, '#0288D1') 
+        ];
 
         this.makeDeck();    
         this.setCardXY();
 
-        this.element = document.createElement('div');
-        this.element.className = 'grid';
-        this.element.style.width = cellSize * w + 'px';
+        this.element = m('div', 'grid', {width: cellSize * w + 'px'});
+        this.element.addEventListener('click', (event) => {
+            var x = Math.floor((event.clientX - this.element.offsetLeft) / cellSize);
+            var y = Math.floor((event.clientY - this.element.offsetTop) / cellSize);
+
+            var next = this.getCard(x, y);
+            var p = this.players[this.activePlayer];
+            var current = this.getCard(p.x, p.y);
+
+            if ((next && current && current.nextMove(p, x, y)) || (next && this.nextMove(p, x, y))) {
+                p.setXY(x, y);
+                next.flip();
+                if (!next.repeatMove) {
+                    this.nextPlayer();
+                }
+            }
+        });
 
         this.render();
+    }
+
+    nextMove(pirate, x, y) {
+        return (Math.abs(pirate.x - x) <= 1 && Math.abs(pirate.y - y) <= 1);
+    }
+
+    nextPlayer() {
+        this.activePlayer++;
+        if (this.activePlayer >= this.players.length) {
+            this.activePlayer = 0;
+        }
+    }
+    
+    getCard(x, y) {
+        for(var i = 0; i < this.deck.length; i++) {
+            var card = this.deck[i];
+            if (card.x == x && card.y == y) {
+                return card;
+            }
+        }
+        return null;
     }
 
     makeDeck() {
@@ -289,7 +439,7 @@ class GameBoard {
             }
         });
 
-        for(var i = 0; i < count-sum; i++) {  
+        for(var i = 0; i < count - sum; i++) {  
             this.deck.push(new Default());
         }
 
@@ -311,14 +461,20 @@ class GameBoard {
     }
 
     isCorner(x, y) {
-        return (x == 0 && y == 0) || (x == 0 && y == this.height - 1) || (x == this.width - 1 && y == 0) || (x == this.width - 1 && y == this.height - 1);
+        return (x == 0 && y == 0) 
+            || (x == 0 && y == this.height - 1) 
+            || (x == this.width - 1 && y == 0) 
+            || (x == this.width - 1 && y == this.height - 1);
     }
 
     render(id) {
-        for(var i = 0; i < this.deck.length; i++) {
-            var item = this.deck[i];
+        this.deck.forEach(item => {
             this.element.appendChild(item.element);
-        }
+        })
+
+        this.players.forEach(item => {
+            this.element.appendChild(item.element);
+        })
     }
 }
 

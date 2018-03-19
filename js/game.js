@@ -1,27 +1,9 @@
-﻿(function () {
+﻿//"use strict";
+import { m, shuffle } from './utils.js';
+import { Listener } from './listener.js';
 
 const cellSize = 72;
 //const cellSize = 164;
-
-function shuffle(array) {
-    let counter = array.length;
-
-    // While there are elements in the array
-    while (counter > 0) {
-        // Pick a random index
-        let index = Math.floor(Math.random() * counter);
-
-        // Decrease counter by 1
-        counter--;
-
-        // And swap the last element with it
-        let temp = array[counter];
-        array[counter] = array[index];
-        array[index] = temp;
-    }
-
-    return array;
-}
 
 class Person {
     constrcutor() {
@@ -47,7 +29,10 @@ class Ship {
 }
 
 class Player {
-    constructor(x, y, color) {    
+    constructor(x, y, color) {   
+        this.color = color; 
+        this.status = new Listener();
+        this.goldCount = 0;
 
         this.element = m('div', 'player', {
             width: cellSize + 'px',
@@ -61,26 +46,25 @@ class Player {
         this.element.appendChild(this.image);
 
         this.setXY(x, y);
+        this.setGoldCount(this.goldCount);
     }
 
     setXY(x, y) {
         this.x = x;
         this.y = y;
-        this.element.style.left = (x * cellSize) + 'px'
-        this.element.style.top = (y * cellSize) + 'px'
-    }
-}
-
-function m(tag, className, style) {
-    var element = document.createElement(tag);
-    element.className = className;            
-    for(var i in style) {
-        if (style.hasOwnProperty(i)) {
-            element.style[i] = style[i];
-        }
+        this.element.style.left = (x * cellSize) + 'px';
+        this.element.style.top = (y * cellSize) + 'px';
     }
 
-    return element;
+    setGoldCount (n) {
+        this.goldCount = n;
+        this.image.textContent = n;
+    }
+
+    setActive(flag) {
+        this.element.style.opacity = flag ? 1 : 0.8;
+        this.status.fire(flag);
+    }
 }
 
 class Card {    
@@ -88,6 +72,8 @@ class Card {
         this.size = cellSize;
         this.isOpen = false;
         this.repeatMove = false;
+        const dx = 1;
+        this.goldCount = 0;
 
         this.element = m('div', 'container', {
             width: this.size + 'px',
@@ -97,29 +83,34 @@ class Card {
         this.card = m('div', 'card', { });
 
         var back = m('figure', 'back', {
-            width: (this.size - 2) + 'px',
-            height: (this.size - 2) + 'px',
-            top: '1px',
-            left: '1px',
+            width: (this.size - dx) + 'px',
+            height: (this.size - dx) + 'px',
+            top: dx + 'px',
+            left: dx + 'px',
             backgroundImage: 'url(images/' + image + '.png)'            
         });
 
         var front = m('figure', 'front', {
-            width: (this.size - 2) + 'px',
-            height: (this.size - 2) + 'px',
-            top: '1px',
-            left: '1px',
+            width: (this.size - dx) + 'px',
+            height: (this.size - dx) + 'px',
+            top: dx + 'px',
+            left: 0 + 'px',
             backgroundImage: 'url(images/default.png)'            
         });
 
+        this.gold = m('div', 'gold', {'display': 'none'});
+
         this.card.appendChild(front);
         this.card.appendChild(back);
-
+       
         this.element.appendChild(this.card);
+        this.element.appendChild(this.gold);
 
         this.card.addEventListener("transitionend", () => {
             this.element.style.zIndex = 1;
         }, false);
+
+        this.setGoldCount(0);
 
 //        var angle = Math.round(Math.random()*3)*90;
 //        this.element.style.transform = 'rotate('+angle+'deg)';
@@ -128,11 +119,17 @@ class Card {
         this.y = 0;
     }
 
+    setGoldCount(n) {
+        this.goldCount = n;
+        this.gold.textContent = n;
+        this.gold.style.display = (this.goldCount == 0) ? 'none' : 'block';
+    }
+
     setXY(x, y) {
         this.x = x;
         this.y = y;
-        this.element.style.left = (x * this.size) + 'px'
-        this.element.style.top = (y * this.size) + 'px'
+        this.element.style.left = (x * this.size) + 'px';
+        this.element.style.top = (y * this.size) + 'px';
     }
 
     nextMove(pirate, x, y) {
@@ -143,11 +140,11 @@ class Card {
         pirate.setXY(this.x, this.y);
     }
 
-    setActive(flag) {
+    setActive(flag, color) {
         if (flag) {
             this.element.classList.add('active');
         } else {
-            this.element.classList.remove('active');;
+            this.element.classList.remove('active');
         }
     }
 
@@ -156,6 +153,7 @@ class Card {
             this.isOpen = true;
             this.element.style.zIndex = 100;
             this.card.classList.add('flipped');
+            this.setGoldCount(this.goldCount);
         }
     }
 }
@@ -206,8 +204,8 @@ class Arrow3 extends Card {
     }    
 
     nextMove(pirate, x, y) {
-        return (pirate.x + 1 == x && pirate.y == y)
-            || (pirate.x - 1 == x && pirate.y == y);
+        return (pirate.x + 1 == x && pirate.y == y) || 
+            (pirate.x - 1 == x && pirate.y == y);
     }   
 }
 
@@ -218,8 +216,8 @@ class Arrow4 extends Card {
     }
 
     nextMove(pirate, x, y) {
-        return (pirate.x - 1 == x && pirate.y + 1 == y)
-            || (pirate.x + 1 == x && pirate.y - 1 == y);
+        return (pirate.x - 1 == x && pirate.y + 1 == y) || 
+            (pirate.x + 1 == x && pirate.y - 1 == y);
     }    
 }
 
@@ -230,9 +228,9 @@ class Arrow5 extends Card {
     }    
 
     nextMove(pirate, x, y) {
-        return (pirate.x - 1 == x && pirate.y - 1 == y)
-            || (pirate.x + 1 == x && pirate.y == y)
-            || (pirate.x  == x && pirate.y + 1 == y);
+        return (pirate.x - 1 == x && pirate.y - 1 == y) || 
+            (pirate.x + 1 == x && pirate.y == y) || 
+            (pirate.x  == x && pirate.y + 1 == y);
     }
 }
 
@@ -243,10 +241,10 @@ class Arrow6 extends Card {
     }    
 
     nextMove(pirate, x, y) {
-        return (pirate.x - 1 == x && pirate.y == y)
-            || (pirate.x + 1 == x && pirate.y == y)
-            || (pirate.x == x && pirate.y + 1 == y)
-            || (pirate.x == x && pirate.y - 1 == y);
+        return (pirate.x - 1 == x && pirate.y == y) ||
+            (pirate.x + 1 == x && pirate.y == y) ||
+            (pirate.x == x && pirate.y + 1 == y) ||
+            (pirate.x == x && pirate.y - 1 == y);
     }
 }
 
@@ -281,7 +279,10 @@ class Empty4 extends Card {
 }
 
 class Ice extends Card {
-    constructor() { super('ice'); }    
+    constructor() { 
+        super('ice'); 
+        this.repeatMove = true;
+    }    
 }
 
 class Trap extends Card {
@@ -305,23 +306,38 @@ class Default extends Card {
 }
 
 class Gold1 extends Card {
-    constructor() { super('gold_01'); }    
+    constructor() { 
+        super('gold_01'); 
+        this.setGoldCount(1);
+    }    
 }
 
 class Gold2 extends Card {
-    constructor() { super('gold_02'); }    
+    constructor() { 
+        super('gold_02'); 
+        this.setGoldCount(2);
+    }    
 }
 
 class Gold3 extends Card {
-    constructor() { super('gold_03'); }    
+    constructor() { 
+        super('gold_03'); 
+        this.setGoldCount(3);
+    }    
 }
 
 class Gold4 extends Card {
-    constructor() { super('gold_04'); }    
+    constructor() { 
+        super('gold_04'); 
+        this.setGoldCount(4);
+    }    
 }
 
 class Gold5 extends Card {
-    constructor() { super('gold_05'); }    
+    constructor() { 
+        super('gold_05'); 
+        this.setGoldCount(5);
+    }    
 }
 
 class Girl extends Card {
@@ -374,6 +390,7 @@ class GameBoard {
         this.width = w;
         this.height = h;
         this.colors = ['white', 'red', 'yellow', 'green'];
+        this.onmove = new Listener();
 
         this.cards = [
             [Empty1, 10], [Empty2, 10], [Empty3, 10], [Empty4, 10], 
@@ -415,21 +432,28 @@ class GameBoard {
             var p = this.players[this.activePlayer];
             var current = this.getCard(p.x, p.y);
 
-            if ((next && current && current.nextMove(p, x, y)) 
-                || (next && !current && this.nextMove(p, x, y))) {
+            if ((next && current && current.nextMove(p, x, y)) || 
+                (next && !current && this.nextMove(p, x, y))) {
 
                 next.flip();
                 next.updatePos(p);
 
                 // p.setXY(x, y);
                 if (!next.repeatMove) {
+                    p.setActive(false);
                     this.nextPlayer();
                 }
-                this.showMoves(this.players[this.activePlayer]);
+                p = this.players[this.activePlayer];
+                p.setActive(true);
+                this.showMoves(p);
             }
         });
 
         this.render();
+        this.showMoves(this.players[this.activePlayer]);
+        this.players.forEach(p => {
+            p.setActive(p == this.players[this.activePlayer]);
+        });
     }
 
     showMoves(p) {
@@ -439,7 +463,7 @@ class GameBoard {
                 for(var y = 0; y < this.height; y++) {
                     var c = this.getCard(x, y);
                     if (c) {
-                        c.setActive(card.nextMove(p, x, y));
+                        c.setActive(card.nextMove(p, x, y), p.color);
                     }
                 }
             }
@@ -448,11 +472,13 @@ class GameBoard {
                 for(var y = 0; y < this.height; y++) {
                     var c = this.getCard(x, y);
                     if (c) {
-                        c.setActive(this.nextMove(p, x, y));
+                        c.setActive(this.nextMove(p, x, y), p.color);
                     }
                 }
             }
         }
+
+        this.onmove.fire(); 
     }
 
     nextMove(pirate, x, y) {
@@ -516,13 +542,58 @@ class GameBoard {
     }
 
     render(id) {
+        
         this.deck.forEach(item => {
             this.element.appendChild(item.element);
-        })
+        });
 
         this.players.forEach(item => {
             this.element.appendChild(item.element);
-        })
+        });
+
+        var root = document.getElementById('info');
+        this.players.forEach(item => {
+            let info = m('div', 'player-info', {
+                background: item.color 
+            }); 
+            item.status.subscribe((f) => {
+                // console.log(item.color, f);
+                info.style.opacity = f ? 1 : 0.2;
+            });
+            root.appendChild(info);
+        });
+
+        var actionBtn = m('button', 'get-money', {'display': 'none'});
+        actionBtn.textContent = 'Взять монету';
+        root.appendChild(actionBtn);
+
+        actionBtn.addEventListener('click', () => {
+            var p = this.players[this.activePlayer];
+            var current = this.getCard(p.x, p.y);
+
+            if (current && p.goldCount == 0 && current.goldCount > 0) {
+                current.setGoldCount(current.goldCount - 1);
+                p.setGoldCount(1);
+            } else if (p.goldCount > 0) {
+                current.setGoldCount(current.goldCount + 1);
+                p.setGoldCount(0);
+            }
+            this.onmove.fire();
+        });
+
+        this.onmove.subscribe(() => {
+            var p = this.players[this.activePlayer];
+            var current = this.getCard(p.x, p.y);
+            if (current && p.goldCount == 0 && current.goldCount > 0) {
+                actionBtn.textContent = 'Взять монету';
+                actionBtn.style.display = 'block';
+            } else if (p.goldCount > 0) {
+                actionBtn.textContent = 'Положить монету';
+                actionBtn.style.display = 'block';
+            } else {
+                actionBtn.style.display = 'none';
+            }
+        });
     }
 }
 
@@ -532,4 +603,3 @@ let g = new GameBoard(11, 11);
 root.style.width = g.width * cellSize + 'px';
 root.appendChild(g.element);
 
-} ());

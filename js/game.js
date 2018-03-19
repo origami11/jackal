@@ -7,12 +7,13 @@ const debugGold = false;
 //const cellSize = 164;
 
 class Ship {
-    constructor(x, y) {
+    constructor(x, y, color) {
         this.side = 0;
 
         const dx = 1;
         this.size = cellSize;
         this.goldCount = 0;
+        this.color = color;
 
         this.element = m('div', 'player-ship', {
             width: this.size + 'px',
@@ -24,6 +25,7 @@ class Ship {
             height: (this.size - dx*2) + 'px',
             top: dx + 'px',
             left: dx + 'px',
+            border: "4px solid " + color,
             backgroundImage: 'url(images/ship_01.png)'            
         });
 
@@ -40,6 +42,10 @@ class Ship {
         this.goldCount = n;
         this.gold.textContent = n;
         this.gold.style.display = (this.goldCount == 0) ? 'none' : 'block';
+    }
+
+    addGold() {
+        this.setGoldCount(this.goldCount + 1);
     }
 
     setXY(x, y) {
@@ -93,7 +99,8 @@ class Player {
 
         this.activeElement = 0;
         this.status = new Listener();
-        this.pirates = [new Pirate(x, y, color), new Ship(x, y)];
+        this.pirates = [new Pirate(x, y, color)];
+        this.ship = new Ship(x, y, color);
     }
 
     setActive(flag) {
@@ -103,6 +110,10 @@ class Player {
 
     getActiveElement() {
         return this.pirates[this.activeElement];
+    }
+
+    pirateOnShip(p) {
+        return p.x == this.ship.x && p.y == this.ship.y;
     }
 }
 
@@ -428,7 +439,7 @@ class FreeCell {
 }
 
 class GameBoard {  
-    constructor(w, h) {
+    constructor(w, h, root) {
         this.width = w;
         this.height = h;
         this.colors = ['white', 'red', 'yellow', 'green'];
@@ -465,18 +476,37 @@ class GameBoard {
         this.makeDeck();    
         this.setCardXY();
 
-        this.element = m('div', 'grid', {width: cellSize * w + 'px'});
+        this.element = m('div', 'playground', {
+            width: cellSize * (w + 2) + 'px',
+            height: cellSize * (h + 2) + 'px'
+        });
+
+
+        this.grid = m('div', 'grid', {
+            width: cellSize * w + 'px',
+            height: cellSize * h + 'px',
+            top: cellSize + 'px',
+            left: cellSize + 'px'
+        });
+
+        this.element.appendChild(this.grid)
+        root.style.width = cellSize * (w + 2) + 'px';
+        root.style.height = cellSize * (h + 2) + 'px';
+        root.appendChild(this.element);
+
         this.element.addEventListener('click', (event) => {
         
-            var x = Math.floor((event.clientX - this.element.offsetLeft) / cellSize);
-            var y = Math.floor((event.clientY - this.element.offsetTop) / cellSize);
+            var x = Math.floor((event.clientX - this.element.offsetLeft) / cellSize) - 1;
+            var y = Math.floor((event.clientY - this.element.offsetTop) / cellSize) - 1;
 
-            console.log(x, y);
+            // console.log(x, y);
 
             var next = this.getCard(x, y);
             var p = this.getActivePlayer();
             var pirate = p.getActiveElement();
             var current = this.getCard(pirate.x, pirate.y);
+
+            var doMove = false;
 
             if ((next && current && current.nextMove(pirate, x, y)) || 
                 (next && !current && this.nextMove(pirate, x, y))) {
@@ -488,6 +518,21 @@ class GameBoard {
                     p.setActive(false);
                     this.nextPlayer();
                 }
+
+                doMove = true;
+            }
+
+            if (p.ship.x == x && p.ship.y == y) {
+                pirate.setXY(p.ship.x, p.ship.y);
+
+                p.setActive(false);
+                this.nextPlayer();
+
+                doMove = true;
+            }
+
+
+            if (doMove) {
                 p = this.getActivePlayer();
                 p.setActive(true);
                 this.showMoves(p.getActiveElement());
@@ -587,13 +632,14 @@ class GameBoard {
     render(id) {
         
         this.deck.forEach(item => {
-            this.element.appendChild(item.element);
+            this.grid.appendChild(item.element);
         });
 
         this.players.forEach(player => {
             player.pirates.forEach(pirate => {
-                this.element.appendChild(pirate.element);
+                this.grid.appendChild(pirate.element);
             });
+            this.grid.appendChild(player.ship.element);
         });
 
         var root = document.getElementById('info');
@@ -613,17 +659,21 @@ class GameBoard {
         root.appendChild(actionBtn);
 
         actionBtn.addEventListener('click', () => {
-            var p = this.getActivePlayer().getActiveElement();
+            var player = this.getActivePlayer();
+            var p = player.getActiveElement();
             var current = this.getCard(p.x, p.y);
 
             if (current && p.goldCount == 0 && current.goldCount > 0) {
                 current.setGoldCount(current.goldCount - 1);
                 p.setGoldCount(1);
-            } else if (p.goldCount > 0) {
+            } else if (current && p.goldCount > 0) {
                 current.setGoldCount(current.goldCount + 1);
                 p.setGoldCount(0);
+            } else if (p.goldCount > 0 && player.pirateOnShip(p)) {
+                player.ship.addGold();
+                p.setGoldCount(0);
             }
-//            this.onmove.fire();
+
             this.showMoves(p);
         });
 
@@ -645,7 +695,5 @@ class GameBoard {
 
 
 var root = document.getElementById('root');
-let g = new GameBoard(11, 11);
-root.style.width = g.width * cellSize + 'px';
-root.appendChild(g.element);
+let g = new GameBoard(11, 11, root);
 

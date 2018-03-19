@@ -8,11 +8,18 @@ html, body {
 
 #root {
     margin: 0 auto;
-    margin-top: 80px;
+    margin-top: 20px;
 }
 
 .grid {
     position: relative;
+}
+
+.playground {
+    position: relative;
+    border: 1px solid #29B6F6;
+    border-radius: 4px;
+    user-select: none;
 }
 
 .container { 
@@ -104,6 +111,10 @@ html, body {
     position: absolute;
     top: 10px;
     left: 10px;
+    z-index: 1000;
+    background: #263238;
+    padding: 10px;
+    border-radius: 10px;
 }
 
 .player-info {
@@ -124,6 +135,7 @@ html, body {
     background-repeat: no-repeat;
     background-size: cover;
     border-radius: 3px;
+    box-sizing: border-box;
 }
 
 .gold {

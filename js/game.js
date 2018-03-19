@@ -5,19 +5,6 @@ import { Listener } from './listener.js';
 const cellSize = 72;
 //const cellSize = 164;
 
-class Person {
-    constrcutor() {
-        this.x = 0;
-        this.y = 0;
-        this.money = 0;
-
-        this.localMove = 0;
-    }    
-
-    move() {        
-    }
-}
-
 class Ship {
     constrcutor() {
         this.side = 0;
@@ -28,10 +15,9 @@ class Ship {
     }
 }
 
-class Player {
+class Pirate {
     constructor(x, y, color) {   
         this.color = color; 
-        this.status = new Listener();
         this.goldCount = 0;
 
         this.element = m('div', 'player', {
@@ -63,7 +49,25 @@ class Player {
 
     setActive(flag) {
         this.element.style.opacity = flag ? 1 : 0.8;
+    }
+}
+
+class Player {
+    constructor(x, y, color) {
+        this.color = color;
+
+        this.activeElement = 0;
+        this.status = new Listener();
+        this.pirates = [new Pirate(x, y, color)];
+    }
+
+    setActive(flag) {
+        this.pirates[0].setActive(flag);
         this.status.fire(flag);
+    }
+
+    getActiveElement() {
+        return this.pirates[this.activeElement];
     }
 }
 
@@ -429,51 +433,49 @@ class GameBoard {
             var y = Math.floor((event.clientY - this.element.offsetTop) / cellSize);
 
             var next = this.getCard(x, y);
-            var p = this.players[this.activePlayer];
-            var current = this.getCard(p.x, p.y);
+            var p = this.getActivePlayer();
+            var pirate = p.getActiveElement();
+            var current = this.getCard(pirate.x, pirate.y);
 
-            if ((next && current && current.nextMove(p, x, y)) || 
-                (next && !current && this.nextMove(p, x, y))) {
+            if ((next && current && current.nextMove(pirate, x, y)) || 
+                (next && !current && this.nextMove(pirate, x, y))) {
 
                 next.flip();
-                next.updatePos(p);
+                next.updatePos(pirate);
 
-                // p.setXY(x, y);
                 if (!next.repeatMove) {
                     p.setActive(false);
                     this.nextPlayer();
                 }
-                p = this.players[this.activePlayer];
+                p = this.getActivePlayer();
                 p.setActive(true);
-                this.showMoves(p);
+                this.showMoves(p.getActiveElement());
             }
         });
 
+        var player = this.getActivePlayer();
         this.render();
-        this.showMoves(this.players[this.activePlayer]);
+        this.showMoves(player.getActiveElement());
         this.players.forEach(p => {
-            p.setActive(p == this.players[this.activePlayer]);
+            p.setActive(p == player);
         });
+    }
+
+    getActivePlayer() {
+        return this.players[this.activePlayer];
     }
 
     showMoves(p) {
         var card = this.getCard(p.x, p.y);
-        if (card) {
-            for(var x = 0; x < this.width; x++) {
-                for(var y = 0; y < this.height; y++) {
-                    var c = this.getCard(x, y);
-                    if (c) {
-                        c.setActive(card.nextMove(p, x, y), p.color);
-                    }
-                }
-            }
-        } else {
-            for(var x = 0; x < this.width; x++) {
-                for(var y = 0; y < this.height; y++) {
-                    var c = this.getCard(x, y);
-                    if (c) {
-                        c.setActive(this.nextMove(p, x, y), p.color);
-                    }
+        for(var x = 0; x < this.width; x++) {
+            for(var y = 0; y < this.height; y++) {
+                var cardForMove = this.getCard(x, y);
+                if (cardForMove) {
+                    var canMove = card ? card.nextMove(p, x, y) : this.nextMove(p, x, y);                
+                    var isActive = (canMove && (cardForMove.isOpen || p.goldCount == 0));
+
+                    cardForMove.setActive(isActive, p.color);
+                    
                 }
             }
         }
@@ -547,8 +549,10 @@ class GameBoard {
             this.element.appendChild(item.element);
         });
 
-        this.players.forEach(item => {
-            this.element.appendChild(item.element);
+        this.players.forEach(player => {
+            player.pirates.forEach(pirate => {
+                this.element.appendChild(pirate.element);
+            });
         });
 
         var root = document.getElementById('info');
@@ -568,7 +572,7 @@ class GameBoard {
         root.appendChild(actionBtn);
 
         actionBtn.addEventListener('click', () => {
-            var p = this.players[this.activePlayer];
+            var p = this.getActivePlayer().getActiveElement();
             var current = this.getCard(p.x, p.y);
 
             if (current && p.goldCount == 0 && current.goldCount > 0) {
@@ -578,11 +582,12 @@ class GameBoard {
                 current.setGoldCount(current.goldCount + 1);
                 p.setGoldCount(0);
             }
-            this.onmove.fire();
+//            this.onmove.fire();
+            this.showMoves(p);
         });
 
         this.onmove.subscribe(() => {
-            var p = this.players[this.activePlayer];
+            var p = this.getActivePlayer().getActiveElement();
             var current = this.getCard(p.x, p.y);
             if (current && p.goldCount == 0 && current.goldCount > 0) {
                 actionBtn.textContent = 'Взять монету';

@@ -3,15 +3,39 @@ import { m, shuffle } from './utils.js';
 import { Listener } from './listener.js';
 
 const cellSize = 72;
+const debugGold = false; 
 //const cellSize = 164;
 
 class Ship {
-    constrcutor() {
+    constructor(x, y) {
         this.side = 0;
-        this.position = 4;
+
+        const dx = 1;
+        this.size = cellSize;
+
+        this.element = m('div', 'player-ship', {
+            width: this.size + 'px',
+            height: this.size + 'px',
+        });
+
+        var back = m('div', 'ship-back', {
+            width: (this.size - dx*2) + 'px',
+            height: (this.size - dx*2) + 'px',
+            top: dx + 'px',
+            left: dx + 'px',
+            backgroundImage: 'url(images/ship_01.png)'            
+        });
+
+        this.element.appendChild(back);
+
+        this.setXY(x, y);
     }
 
-    move() {
+    setXY(x, y) {
+        this.x = x;
+        this.y = y;
+        this.element.style.left = (x * cellSize) + 'px';
+        this.element.style.top = (y * cellSize) + 'px';
     }
 }
 
@@ -58,7 +82,7 @@ class Player {
 
         this.activeElement = 0;
         this.status = new Listener();
-        this.pirates = [new Pirate(x, y, color)];
+        this.pirates = [new Pirate(x, y, color), new Ship(x, y)];
     }
 
     setActive(flag) {
@@ -73,10 +97,10 @@ class Player {
 
 class Card {    
     constructor(image) {
+        const dx = 1;
         this.size = cellSize;
         this.isOpen = false;
         this.repeatMove = false;
-        const dx = 1;
         this.goldCount = 0;
 
         this.element = m('div', 'container', {
@@ -87,18 +111,18 @@ class Card {
         this.card = m('div', 'card', { });
 
         var back = m('figure', 'back', {
-            width: (this.size - dx) + 'px',
-            height: (this.size - dx) + 'px',
+            width: (this.size - dx*2) + 'px',
+            height: (this.size - dx*2) + 'px',
             top: dx + 'px',
             left: dx + 'px',
             backgroundImage: 'url(images/' + image + '.png)'            
         });
 
         var front = m('figure', 'front', {
-            width: (this.size - dx) + 'px',
-            height: (this.size - dx) + 'px',
+            width: (this.size - dx*2) + 'px',
+            height: (this.size - dx*2) + 'px',
             top: dx + 'px',
-            left: 0 + 'px',
+            left: dx + 'px',
             backgroundImage: 'url(images/default.png)'            
         });
 
@@ -126,7 +150,7 @@ class Card {
     setGoldCount(n) {
         this.goldCount = n;
         this.gold.textContent = n;
-        this.gold.style.display = (this.goldCount == 0) ? 'none' : 'block';
+        this.gold.style.display = (this.goldCount == 0 || (debugGold ? false : this.isOpen == false)) ? 'none' : 'block';
     }
 
     setXY(x, y) {
@@ -387,6 +411,9 @@ class Fortress extends Card {
 
 class Cannibal extends Card {
     constructor() { super('cannibal'); }    
+}
+
+class FreeCell {
 }
 
 class GameBoard {  

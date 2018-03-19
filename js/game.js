@@ -60,6 +60,7 @@ class Pirate {
     constructor(x, y, color) {   
         this.color = color; 
         this.goldCount = 0;
+        this.waitMoves = 0;
 
         this.element = m('div', 'player', {
             width: cellSize + 'px',
@@ -123,6 +124,7 @@ class Card {
         this.size = cellSize;
         this.isOpen = false;
         this.repeatMove = false;
+
         this.goldCount = 0;
 
         this.element = m('div', 'container', {
@@ -208,21 +210,54 @@ class Card {
     }
 }
 
+class RotateCard extends Card {
+    constructor(image, n) { 
+        super(image);  
+        this.waitMoves = n;
+    }    
 
-class Rotate2n extends Card {
-    constructor() { super('rotate_2n');  }    
+    updatePos(pirate) {
+        if (pirate.waitMoves == 0) {
+            pirate.waitMoves = this.waitMoves;
+        } else {
+            pirate.waitMoves -= 1;
+        }
+
+        super.updatePos(pirate);
+    }
+
+    nextMove(pirate, x, y) {
+        if (pirate.waitMoves == 0) {
+            return super.nextMove(pirate, x, y);
+        } else {
+            return pirate.x == x && pirate.y == y;
+        }
+    }
 }
 
-class Rotate3n extends Card {
-    constructor() { super('rotate_3n');  }    
+
+class Rotate2n extends RotateCard {
+    constructor() { 
+        super('rotate_2n', 1);  
+    }    
 }
 
-class Rotate4n extends Card {
-    constructor() { super('rotate_4n');  }    
+class Rotate3n extends RotateCard {
+    constructor() { 
+        super('rotate_3n', 2);  
+    }    
 }
 
-class Rotate5n extends Card {
-    constructor() { super('rotate_5n');  }    
+class Rotate4n extends RotateCard {
+    constructor() { 
+        super('rotate_4n', 3);  
+    }    
+}
+
+class Rotate5n extends RotateCard {
+    constructor() { 
+        super('rotate_5n', 4);  
+    }    
 }
 
 class Arrow1 extends Card {
@@ -336,11 +371,16 @@ class Ice extends Card {
 }
 
 class Trap extends Card {
-    constructor() { super('trap'); }    
+    constructor() { 
+        super('trap'); 
+        this.waitMoves = -1;
+    }    
 }
 
 class Alligator extends Card {
-    constructor() { super('alligator'); }    
+    constructor() { 
+        super('alligator'); 
+    }    
 }
 
 class Balloon extends Card {
@@ -405,7 +445,10 @@ class Plane extends Card {
 }
 
 class Rum extends Card {
-    constructor() { super('rum'); }
+    constructor() { 
+        super('rum'); 
+        this.waitMoves = 1;
+    }
 }
 
 class Horse extends Card {
@@ -560,11 +603,12 @@ class GameBoard {
                     var canMove = card ? card.nextMove(p, x, y) : this.nextMove(p, x, y);                
                     var isActive = (canMove && (cardForMove.isOpen || p.goldCount == 0));
 
-                    cardForMove.setActive(isActive, p.color);
-                    
+                    cardForMove.setActive(isActive, p.color);                    
                 }
             }
         }
+
+        console.log(p.waitMoves);
 
         this.onmove.fire(); 
     }

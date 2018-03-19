@@ -12,6 +12,7 @@ class Ship {
 
         const dx = 1;
         this.size = cellSize;
+        this.goldCount = 0;
 
         this.element = m('div', 'player-ship', {
             width: this.size + 'px',
@@ -26,9 +27,19 @@ class Ship {
             backgroundImage: 'url(images/ship_01.png)'            
         });
 
+        this.gold = m('div', 'gold', {'display': 'none'});
+
         this.element.appendChild(back);
+        this.element.appendChild(this.gold);
 
         this.setXY(x, y);
+        this.setGoldCount(this.goldCount);
+    }
+
+    setGoldCount(n) {
+        this.goldCount = n;
+        this.gold.textContent = n;
+        this.gold.style.display = (this.goldCount == 0) ? 'none' : 'block';
     }
 
     setXY(x, y) {
@@ -456,8 +467,11 @@ class GameBoard {
 
         this.element = m('div', 'grid', {width: cellSize * w + 'px'});
         this.element.addEventListener('click', (event) => {
+        
             var x = Math.floor((event.clientX - this.element.offsetLeft) / cellSize);
             var y = Math.floor((event.clientY - this.element.offsetTop) / cellSize);
+
+            console.log(x, y);
 
             var next = this.getCard(x, y);
             var p = this.getActivePlayer();

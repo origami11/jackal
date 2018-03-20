@@ -3,13 +3,24 @@ const http = require('http')
 var url = require('url');
 var path = require('path');
 var fs = require('fs');
-const port = 3000
+
+const port = 3000;
+
+class Game {
+}
 
 const requestHandler = (request, response) => {
     var requestUrl = url.parse(request.url);
+
+    if (requestUrl.pathname === '/game') {
+        // Обработка правил игры
+        return;
+    }        
+
+    // Обработка статических ресурсов игры
     var fsPath, contentType;
     var content = {'.js': 'application/javascript', '.css': 'text/css', '.png': 'image/png', '.ico': 'image/x-icon'};
-
+    
     if (requestUrl.pathname === '/') {
         fsPath = path.resolve(__dirname + '/index.html');
         contentType = {'Content-Type': 'text/html'};
@@ -17,8 +28,6 @@ const requestHandler = (request, response) => {
         fsPath = path.resolve(__dirname + requestUrl.pathname);
         contentType = {'Content-Type': content[path.extname(requestUrl.pathname)]};
     }
-
-    console.log(request.url, contentType);
 
     fs.stat(fsPath, function (err, stat) {
         if (err) {

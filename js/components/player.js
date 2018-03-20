@@ -9,7 +9,7 @@ export class Player {
 
         this.activeElement = 0;
         this.status = new Listener();
-        this.pirates = [new Pirate(x, y, color), new Pirate(x, y, color), new Pirate(x, y, color)];
+        this.pirates = [new Pirate(x, y, color, 1), new Pirate(x, y, color, 2), new Pirate(x, y, color, 3)];
         this.ship = new Ship(x, y, color);
     }
 

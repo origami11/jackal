@@ -119,6 +119,17 @@ html, body {
     border-radius: 20px;
 }
 
+.player-gold {
+    position: absolute;
+    top: 5px;
+    left: -5px;
+    background: gold;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.8);
+}
+
 .player-ship {
     position: absolute;
 }

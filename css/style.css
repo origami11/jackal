@@ -146,3 +146,11 @@ html, body {
     right: 5px;
     line-height: 15px;
 }
+
+
+#actions {
+    width: 70px;
+    position: absolute;
+    top: 210px;
+    left: 10px
+}

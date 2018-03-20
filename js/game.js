@@ -238,9 +238,11 @@ class GameBoard {
             root.appendChild(info);
         });
 
-        var actionBtn = m('button', 'get-money', {'display': 'none'});
+        var actions = document.getElementById('actions');
+        var actionBtn = m('button', 'get-money', {});
+        actionBtn.disabled = true;
         actionBtn.textContent = 'Взять монету';
-        root.appendChild(actionBtn);
+        actions.appendChild(actionBtn);
 
         actionBtn.addEventListener('click', () => {
             var player = this.getActivePlayer();
@@ -261,17 +263,34 @@ class GameBoard {
             this.showMoves(p);
         });
 
+        for(let i = 0; i < 3; i++) {
+            var p = m('button', 'select-pirate', {});
+            p.textContent = 'Пират #' + (i + 1);
+            p.addEventListener('click', () => {
+                console.log(i);
+                var player = this.getActivePlayer();
+                player.setActiveElement(i);
+
+                this.showMoves(player.getActiveElement(), []);
+            });
+            actions.appendChild(p);
+        }
+
+        var sh = m('button', 'select-ship', {});
+        sh.textContent = 'Корабль';
+        actions.appendChild(sh);
+
         this.onmove.subscribe(() => {
             var p = this.getActivePlayer().getActiveElement();
             var current = this.getCard(p.x, p.y);
             if (current && p.goldCount == 0 && current.goldCount > 0) {
                 actionBtn.textContent = 'Взять монету';
-                actionBtn.style.display = 'block';
+                actionBtn.disabled = false;
             } else if (p.goldCount > 0) {
                 actionBtn.textContent = 'Положить монету';
-                actionBtn.style.display = 'block';
+                actionBtn.disabled = false;
             } else {
-                actionBtn.style.display = 'none';
+                actionBtn.disabled = true;
             }
         });
     }

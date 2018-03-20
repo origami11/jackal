@@ -9,13 +9,17 @@ export class Player {
 
         this.activeElement = 0;
         this.status = new Listener();
-        this.pirates = [new Pirate(x, y, color)];
+        this.pirates = [new Pirate(x, y, color), new Pirate(x, y, color), new Pirate(x, y, color)];
         this.ship = new Ship(x, y, color);
     }
 
     setActive(flag) {
         this.pirates[0].setActive(flag);
         this.status.fire(flag);
+    }
+
+    setActiveElement(n) {
+        this.activeElement = n;
     }
 
     getActiveElement() {

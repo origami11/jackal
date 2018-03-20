@@ -6,14 +6,18 @@ var fs = require('fs');
 
 const port = 3000;
 
+class Player {
+}
+
 class Game {
 }
 
 const requestHandler = (request, response) => {
     var requestUrl = url.parse(request.url);
 
-    if (requestUrl.pathname === '/game') {
+    if (requestUrl.pathname === '/connect') {
         // Обработка правил игры
+        // response.writeHead(200, contentType);
         return;
     }        
 

@@ -79,12 +79,23 @@ class GameBoard {
 
             // console.log(x, y);
 
-            var next = this.getCard(x, y);
             var p = this.getActivePlayer();
+            console.log(p.moveShip);
+            if (p.moveShip) {
+                if (p.setShipXY(x, y)) {
+                    p.setActive(false);
+                    this.nextPlayer();
+                    p.moveShip = false;
+                    lastPos = [];
+                    this.updateMove(lastPos);
+                }
+
+                return;
+            }
+
+            var next = this.getCard(x, y);
             var pirate = p.getActiveElement();
             var current = this.getCard(pirate.x, pirate.y);
-
-            var doMove = false;
 
             if ((next && current && current.nextMove(pirate, x, y, lastPos)) || 
                 (next && !current && this.nextMove(pirate, x, y))) {
@@ -100,7 +111,7 @@ class GameBoard {
                     lastPos = [];
                 }
 
-                doMove = true;
+                this.updateMove(lastPos);
             }
 
             if (p.ship.x == x && p.ship.y == y) {
@@ -110,14 +121,7 @@ class GameBoard {
                 this.nextPlayer();
                 lastPos = [];
 
-                doMove = true;
-            }
-
-
-            if (doMove) {
-                p = this.getActivePlayer();
-                p.setActive(true);
-                this.showMoves(p.getActiveElement(), lastPos);
+                this.updateMove(lastPos);
             }
         });
 
@@ -127,6 +131,12 @@ class GameBoard {
         this.players.forEach(p => {
             p.setActive(p == player);
         });
+    }
+
+    updateMove(lastPos) {
+        var p = this.getActivePlayer();
+        p.setActive(true);
+        this.showMoves(p.getActiveElement(), lastPos);
     }
 
     getActivePlayer() {
@@ -266,9 +276,9 @@ class GameBoard {
         for(let i = 0; i < 3; i++) {
             var p = m('button', 'select-pirate', {});
             p.textContent = 'Пират #' + (i + 1);
-            p.addEventListener('click', () => {
-                console.log(i);
+            p.addEventListener('click', () => {                
                 var player = this.getActivePlayer();
+                player.moveShip = false;
                 player.setActiveElement(i);
 
                 this.showMoves(player.getActiveElement(), []);
@@ -278,6 +288,11 @@ class GameBoard {
 
         var sh = m('button', 'select-ship', {});
         sh.textContent = 'Корабль';
+        sh.addEventListener('click', () => {
+            var player = this.getActivePlayer();
+            player.moveShip = true;
+        });
+
         actions.appendChild(sh);
 
         this.onmove.subscribe(() => {

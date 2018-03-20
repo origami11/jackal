@@ -1,4 +1,4 @@
-﻿import { Card } from './card.js';
+﻿import { Card } from '../components/card.js';
 
 export class Gold1 extends Card {
     constructor() { 

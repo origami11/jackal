@@ -7,90 +7,11 @@ import { Player } from './components/player.js';
 
 import { cellSize } from './options.js';
 
-import { Arrow1, Arrow2, Arrow3, Arrow4, Arrow5, Arrow6, Arrow7 } from './components/arrows.js';
-import { Rotate2n, Rotate3n, Rotate4n, Rotate5n } from './components/rotates.js';
-import { Empty1, Empty2, Empty3, Empty4 } from './components/empty.js';
-import { Gold1, Gold2, Gold3, Gold4, Gold5 } from './components/golds.js';
-
-class Ice extends Card {
-    constructor() { 
-        super('ice'); 
-        this.repeatMove = true;
-    }    
-}
-
-class Trap extends Card {
-    constructor() { 
-        super('trap'); 
-        this.waitMoves = -1;
-    }    
-}
-
-class Alligator extends Card {
-    constructor() { 
-        super('alligator'); 
-    }    
-}
-
-class Balloon extends Card {
-    constructor() { super('balloon'); }    
-}
-
-class Cannon extends Card {
-    constructor() { super('cannon'); }    
-}
-
-class Default extends Card {
-    constructor() { super('default'); }    
-}
-
-class Girl extends Card {
-    constructor() { super('girl'); }    
-}
-
-class Plane extends Card {
-    constructor() { 
-        super('plane'); 
-    }    
-
-    nextMove(pirate, x, y) {
-        return true;
-    }
-}
-
-class Rum extends Card {
-    constructor() { 
-        super('rum'); 
-        this.waitMoves = 1;
-    }
-}
-
-class Horse extends Card {
-    constructor() { 
-        super('horse'); 
-        this.repeatMove = true;
-    }    
-
-    nextMove(pirate, x, y) {
-        return (pirate.x + 2 == x && pirate.y + 1 == y)
-            || (pirate.x + 2 == x && pirate.y - 1 == y)
-            || (pirate.x - 2 == x && pirate.y + 1 == y)
-            || (pirate.x - 2 == x && pirate.y - 1 == y)
-
-            || (pirate.x + 1 == x && pirate.y + 2 == y)
-            || (pirate.x + 1 == x && pirate.y - 2 == y)
-            || (pirate.x - 1 == x && pirate.y + 2 == y)
-            || (pirate.x - 1 == x && pirate.y - 2 == y);
-    }
-}
-
-class Fortress extends Card {
-    constructor() { super('fortress'); }    
-}
-
-class Cannibal extends Card {
-    constructor() { super('cannibal'); }    
-}
+import { Arrow1, Arrow2, Arrow3, Arrow4, Arrow5, Arrow6, Arrow7 } from './cards/arrows.js';
+import { Rotate2n, Rotate3n, Rotate4n, Rotate5n } from './cards/rotates.js';
+import { Empty1, Empty2, Empty3, Empty4 } from './cards/empty.js';
+import { Gold1, Gold2, Gold3, Gold4, Gold5 } from './cards/golds.js';
+import { Ice, Trap, Alligator, Balloon, Cannon, Default, Girl,  Plane, Rum, Horse,  Fortress, Cannibal } from './cards/specials.js';
 
 class GameBoard {  
     constructor(w, h, root) {
@@ -225,7 +146,8 @@ class GameBoard {
     }
 
     nextMove(pirate, x, y) {
-        return (Math.abs(pirate.x - x) <= 1 && Math.abs(pirate.y - y) <= 1);
+        return (Math.abs(pirate.x - x) == 1 && pirate.y == y) || 
+               (Math.abs(pirate.y - y) == 1  && pirate.x == x);
     }
 
     nextPlayer() {

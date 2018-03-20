@@ -37,10 +37,6 @@ html, body {
     transition: transform 1s;
 } 
 
-.active .card figure {
-    _border: 2px solid #ef5350;
-}
-
 .card figure {
     margin: 0;
     display: block;
@@ -99,8 +95,6 @@ html, body {
     height: 20px;
     margin-left: -10px;
     margin-top: -10px;
-    /*top: 10px;
-    right: 10px;*/
     top: 50%;
     left: 50%;
     position: absolute;
@@ -152,5 +146,3 @@ html, body {
     right: 5px;
     line-height: 15px;
 }
-
-

@@ -1,4 +1,4 @@
-﻿
+
 import { m } from '../utils.js';
 import { cellSize } from '../options.js';
 

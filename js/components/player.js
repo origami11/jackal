@@ -1,4 +1,4 @@
-﻿
+
 import { Listener } from '../listener.js';
 import { Ship } from './ship.js';
 import { Pirate } from './pirate.js';

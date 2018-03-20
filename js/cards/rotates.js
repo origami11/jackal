@@ -1,4 +1,4 @@
-﻿import { Card } from '../components/card.js';
+import { Card } from '../components/card.js';
 
 export class RotateCard extends Card {
     constructor(image, n) { 
@@ -16,7 +16,7 @@ export class RotateCard extends Card {
         super.updatePos(pirate);
     }
 
-    nextMove(pirate, x, y) {
+    nextMove(pirate, x, y, lastPos) {
         if (pirate.waitMoves == 0) {
             return super.nextMove(pirate, x, y);
         } else {

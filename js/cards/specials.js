@@ -1,4 +1,4 @@
-﻿import { Card } from '../components/card.js';
+import { Card } from '../components/card.js';
 
 export class Ice extends Card {
     constructor() { 
@@ -17,7 +17,13 @@ export class Trap extends Card {
 export class Alligator extends Card {
     constructor() { 
         super('alligator'); 
+        this.repeatMove = true;
     }    
+
+    nextMove(pirate, x, y, lastPos) {
+        var prev = lastPos[lastPos.length - 1];
+        return x == prev.x && y == prev.y;
+    }
 }
 
 export class Balloon extends Card {
@@ -41,7 +47,7 @@ export class Plane extends Card {
         super('plane'); 
     }    
 
-    nextMove(pirate, x, y) {
+    nextMove(pirate, x, y, lastPos) {
         return true;
     }
 }
@@ -59,7 +65,7 @@ export class Horse extends Card {
         this.repeatMove = true;
     }    
 
-    nextMove(pirate, x, y) {
+    nextMove(pirate, x, y, lastPos) {
         return (pirate.x + 2 == x && pirate.y + 1 == y)
             || (pirate.x + 2 == x && pirate.y - 1 == y)
             || (pirate.x - 2 == x && pirate.y + 1 == y)

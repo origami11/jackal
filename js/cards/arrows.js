@@ -1,4 +1,4 @@
-﻿import { Card } from '../components/card.js';
+import { Card } from '../components/card.js';
 
 export class Arrow1 extends Card {
     constructor() { 
@@ -6,7 +6,7 @@ export class Arrow1 extends Card {
         this.repeatMove = true;
     } 
 
-    nextMove(pirate, x, y) {
+    nextMove(pirate, x, y, lastPos) {
         return pirate.x + 1 == x && pirate.y == y;
     }   
 }
@@ -17,7 +17,7 @@ export class Arrow2 extends Card {
         this.repeatMove = true;
     }   
 
-    nextMove(pirate, x, y) {
+    nextMove(pirate, x, y, lastPos) {
         return pirate.x + 1 == x && pirate.y - 1 == y;
     }    
 }
@@ -28,7 +28,7 @@ export class Arrow3 extends Card {
         this.repeatMove = true;
     }    
 
-    nextMove(pirate, x, y) {
+    nextMove(pirate, x, y, lastPos) {
         return (pirate.x + 1 == x && pirate.y == y) || 
             (pirate.x - 1 == x && pirate.y == y);
     }   
@@ -40,7 +40,7 @@ export class Arrow4 extends Card {
         this.repeatMove = true;
     }
 
-    nextMove(pirate, x, y) {
+    nextMove(pirate, x, y, lastPos) {
         return (pirate.x - 1 == x && pirate.y + 1 == y) || 
             (pirate.x + 1 == x && pirate.y - 1 == y);
     }    
@@ -52,7 +52,7 @@ export class Arrow5 extends Card {
         this.repeatMove = true;
     }    
 
-    nextMove(pirate, x, y) {
+    nextMove(pirate, x, y, lastPos) {
         return (pirate.x - 1 == x && pirate.y - 1 == y) || 
             (pirate.x + 1 == x && pirate.y == y) || 
             (pirate.x  == x && pirate.y + 1 == y);
@@ -65,7 +65,7 @@ export class Arrow6 extends Card {
         this.repeatMove = true;
     }    
 
-    nextMove(pirate, x, y) {
+    nextMove(pirate, x, y, lastPos) {
         return (pirate.x - 1 == x && pirate.y == y) ||
             (pirate.x + 1 == x && pirate.y == y) ||
             (pirate.x == x && pirate.y + 1 == y) ||
@@ -79,7 +79,7 @@ export class Arrow7 extends Card {
         this.repeatMove = true;
     }
 
-    nextMove(pirate, x, y) {
+    nextMove(pirate, x, y, lastPos) {
         return (pirate.x + 1 == x && pirate.y - 1== y)
             || (pirate.x + 1 == x && pirate.y + 1 == y)
             || (pirate.x - 1 == x && pirate.y + 1 == y)

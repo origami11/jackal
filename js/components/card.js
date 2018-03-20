@@ -1,4 +1,4 @@
-﻿import { m } from '../utils.js';
+import { m } from '../utils.js';
 import { cellSize, debugGold } from '../options.js';
 
 export class Card {    
@@ -67,7 +67,7 @@ export class Card {
         this.element.style.top = (y * this.size) + 'px';
     }
 
-    nextMove(pirate, x, y) {
+    nextMove(pirate, x, y, lastPos) {
         return (Math.abs(pirate.x - x) <= 1 && Math.abs(pirate.y - y) <= 1);
     }
 

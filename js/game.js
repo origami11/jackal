@@ -69,6 +69,9 @@ class GameBoard {
         root.style.height = cellSize * (h + 2) + 'px';
         root.appendChild(this.element);
 
+
+        var lastPos = [];
+
         this.element.addEventListener('click', (event) => {
         
             var x = Math.floor((event.clientX - this.element.offsetLeft) / cellSize) - 1;
@@ -83,15 +86,18 @@ class GameBoard {
 
             var doMove = false;
 
-            if ((next && current && current.nextMove(pirate, x, y)) || 
+            if ((next && current && current.nextMove(pirate, x, y, lastPos)) || 
                 (next && !current && this.nextMove(pirate, x, y))) {
 
                 next.flip();
+                lastPos.push({x: pirate.x, y: pirate.y});
+
                 next.updatePos(pirate);
 
                 if (!next.repeatMove) {
                     p.setActive(false);
                     this.nextPlayer();
+                    lastPos = [];
                 }
 
                 doMove = true;
@@ -102,6 +108,7 @@ class GameBoard {
 
                 p.setActive(false);
                 this.nextPlayer();
+                lastPos = [];
 
                 doMove = true;
             }
@@ -110,13 +117,13 @@ class GameBoard {
             if (doMove) {
                 p = this.getActivePlayer();
                 p.setActive(true);
-                this.showMoves(p.getActiveElement());
+                this.showMoves(p.getActiveElement(), lastPos);
             }
         });
 
         var player = this.getActivePlayer();
         this.render();
-        this.showMoves(player.getActiveElement());
+        this.showMoves(player.getActiveElement(), lastPos);
         this.players.forEach(p => {
             p.setActive(p == player);
         });
@@ -126,13 +133,13 @@ class GameBoard {
         return this.players[this.activePlayer];
     }
 
-    showMoves(p) {
+    showMoves(p, lastPos) {
         var card = this.getCard(p.x, p.y);
         for(var x = 0; x < this.width; x++) {
             for(var y = 0; y < this.height; y++) {
                 var cardForMove = this.getCard(x, y);
                 if (cardForMove) {
-                    var canMove = card ? card.nextMove(p, x, y) : this.nextMove(p, x, y);                
+                    var canMove = card ? card.nextMove(p, x, y, lastPos) : this.nextMove(p, x, y);                
                     var isActive = (canMove && (cardForMove.isOpen || p.goldCount == 0));
 
                     cardForMove.setActive(isActive, p.color);                    
@@ -273,4 +280,3 @@ class GameBoard {
 
 var root = document.getElementById('root');
 let g = new GameBoard(11, 11, root);
-

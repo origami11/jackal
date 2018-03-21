@@ -40,8 +40,12 @@ export class Player {
         }
     }
 
+    piratesOnShip() {
+       return this.pirates.reduce((s, p) => s + (this.pirateOnShip(p) ? 1 : 0), 0);
+    }
+
     setShipXY(x, y) {        
-        if (this.testRanage(this.ship.x, this.ship.y, x, y)) {
+        if (this.piratesOnShip() > 0 && this.testRanage(this.ship.x, this.ship.y, x, y)) {
             this.pirates.forEach(p => {
                 if (this.pirateOnShip(p)) {
                     p.setXY(x, y);

@@ -31,8 +31,17 @@ export class Player {
         return p.x == this.ship.x && p.y == this.ship.y;
     }
 
+    testRanage(sx, sy, x, y) {
+        if (sx == -1 || sx == 11) {
+            return sx == x && (y >= 1 && y <= 9) && Math.abs(y - sy) == 1;
+        }
+        if (sy == -1 || sy == 11) {
+            return sy == y && (x >= 1 && x <= 9) && Math.abs(x - sx) == 1;
+        }
+    }
+
     setShipXY(x, y) {        
-        if (this.ship.x == -1 && x == this.ship.x && Math.abs(this.ship.y - y) == 1) {
+        if (this.testRanage(this.ship.x, this.ship.y, x, y)) {
             this.pirates.forEach(p => {
                 if (this.pirateOnShip(p)) {
                     p.setXY(x, y);

@@ -15,32 +15,36 @@ import { Empty1, Empty2, Empty3, Empty4 } from './cards/empty.js';
 import { Gold1, Gold2, Gold3, Gold4, Gold5 } from './cards/golds.js';
 import { Ice, Trap, Alligator, Balloon, Cannon, Default, Girl,  Plane, Rum, Horse,  Fortress, Cannibal } from './cards/specials.js';
 
+
+function deckFromList(list) {
+    var cardsMap = {
+        'empty_01': Empty1, 'empty_02': Empty2, 'empty_03': Empty3, 'empty_03': Empty4, 
+        'arrow_01': Arrow1, 'arrow_02': Arrow2, 'arrow_03': Arrow3, 'arrow_04': Arrow4, 'arrow_05': Arrow5, 'arrow_06': Arrow6, 'arrow_07': Arrow7,  
+        'ice': Ice, 
+        'girl': Girl, 
+        'trap': Trap, 
+        'alligator': Alligator, 
+        'baloon': Balloon, 
+        'cannibal': Cannibal, 
+        'cannon': Cannon, 
+        'horse': Horse, 
+        'fortress': Fortress, 
+        'rum': Rum, 
+            'plane': Plane, 
+        'gold_01': Gold1, 'gold_02': Gold2, 'gold_03': Gold3, 'gold_04': Gold4, 'gold_05': Gold5,
+        'rotate_2n': Rotate2n, 'rotate_3n': Rotate3n, 'rotate_4n': Rotate4n, 'rotate_5n': Rotate5n 
+    };
+    return list.map(item => new cardsMap[item]);
+}
+
 class GameBoard {  
-    constructor(w, h, root) {
+    constructor(w, h, root, list, id) {
         this.width = w;
         this.height = h;
         this.colors = ['white', 'red', 'yellow', 'green'];
         this.onmove = new Listener();
 
-        this.cards = [
-            [Empty1, 10], [Empty2, 10], [Empty3, 10], [Empty4, 10], 
-            [Arrow1, 3], [Arrow2, 3], [Arrow3, 3], [Arrow4, 3], [Arrow5, 3], [Arrow6, 3], [Arrow7, 3],  
-            [Ice, 6], 
-            [Girl, 1], 
-            [Trap, 3], 
-            [Alligator, 4], 
-            [Balloon, 2], 
-            [Cannibal, 1], 
-            [Cannon, 2], 
-            [Horse, 2], 
-            [Fortress, 2], 
-            [Rum, 4], 
-            [Plane, 1], 
-            [Gold1, 5], [Gold2, 5], [Gold3, 3], [Gold4, 2], [Gold5, 1],
-            [Rotate2n, 5], [Rotate3n, 4], [Rotate4n, 2], [Rotate5n, 1] 
-        ];
-
-        this.deck = [];
+        this.deck = deckFromList(list);
 
         this.activePlayer = 0;
         this.players = [
@@ -50,7 +54,6 @@ class GameBoard {
             new Player(5, 11, '#0288D1') 
         ];
 
-        this.makeDeck();    
         this.setCardXY();
 
         this.element = m('div', 'playground', {
@@ -72,66 +75,71 @@ class GameBoard {
         root.appendChild(this.element);
 
 
-        var lastPos = [];
+        this.lastPos = [];
 
-        this.element.addEventListener('click', (event) => {
-        
+        this.element.addEventListener('click', (event) => {        
             var x = Math.floor((event.clientX - this.element.offsetLeft) / cellSize) - 1;
             var y = Math.floor((event.clientY - this.element.offsetTop) / cellSize) - 1;
 
-            // console.log(x, y);
-
-            var p = this.getActivePlayer();
-            if (p.moveShip) {
-                if (p.setShipXY(x, y)) {
-                    p.setActive(false);
-                    this.nextPlayer();
-                    p.moveShip = false;
-                    lastPos = [];
-                    this.updateMove(lastPos);
-                }
-
-                return;
-            }
-
-            var next = this.getCard(x, y);
-            var pirate = p.getActiveElement();
-            var current = this.getCard(pirate.x, pirate.y);
-
-            if ((next && current && current.nextMove(pirate, x, y, lastPos)) || 
-                (next && !current && this.nextMove(pirate, x, y))) {
-
-                next.flip();
-                lastPos.push({x: pirate.x, y: pirate.y});
-
-                next.updatePos(pirate);
-
-                if (!next.repeatMove) {
-                    p.setActive(false);
-                    this.nextPlayer();
-                    lastPos = [];
-                }
-
-                this.updateMove(lastPos);
-            }
-
-            if (p.ship.x == x && p.ship.y == y) {
-                pirate.setXY(p.ship.x, p.ship.y);
-
-                p.setActive(false);
-                this.nextPlayer();
-                lastPos = [];
-
-                this.updateMove(lastPos);
+            var last = this.activePlayer;
+            if (id == 1 && [1, 3].indexOf(this.activePlayer) >= 0 || id == 2 && [0, 2].indexOf(this.activePlayer) >= 0) {
+                this.applyUserStep(x, y);
+                socket.send(JSON.stringify({action: 'step', activePlayer: this.activePlayer, x: x, y: y}));
             }
         });
 
         var player = this.getActivePlayer();
         this.render();
-        this.showMoves(player.getActiveElement(), lastPos);
+        this.showMoves(player.getActiveElement(), this.lastPos);
         this.players.forEach(p => {
             p.setActive(p == player);
         });
+    }
+
+    applyUserStep(x, y) {
+       var p = this.getActivePlayer();
+       if (p.moveShip) {
+           if (p.setShipXY(x, y)) {
+               p.setActive(false);
+               this.nextPlayer();
+               p.moveShip = false;
+               this.lastPos = [];
+               this.updateMove(this.lastPos);
+           }
+
+           return;
+       }
+
+       var next = this.getCard(x, y);
+       var pirate = p.getActiveElement();
+       var current = this.getCard(pirate.x, pirate.y);
+
+       if ((next && current && current.nextMove(pirate, x, y, this.lastPos)) || 
+           (next && !current && this.nextMove(pirate, x, y))) {
+
+           next.flip();
+           this.lastPos.push({x: pirate.x, y: pirate.y});
+
+           next.updatePos(pirate);
+
+           if (!next.repeatMove) {
+               p.setActive(false);
+               this.nextPlayer();
+               this.lastPos = [];
+           }
+
+           this.updateMove(this.lastPos);
+       }
+
+       if (p.ship.x == x && p.ship.y == y) {
+           pirate.setXY(p.ship.x, p.ship.y);
+
+           p.setActive(false);
+           this.nextPlayer();
+           this.lastPos = [];
+
+           this.updateMove(this.lastPos);
+       }
     }
 
     updateMove(lastPos) {
@@ -183,24 +191,6 @@ class GameBoard {
             }
         }
         return null;
-    }
-
-    makeDeck() {
-        var count = this.width * this.height - 4;
-        var sum = 0;
-
-        this.cards.forEach((card) => {
-            sum += card[1];
-            for(var i = 0; i < card[1]; i++) {
-                this.deck.push(new card[0]());
-            }
-        });
-
-        for(var i = 0; i < count - sum; i++) {  
-            this.deck.push(new Default());
-        }
-
-        this.deck = shuffle(this.deck);
     }
 
     setCardXY() {
@@ -312,12 +302,18 @@ class GameBoard {
 
 var socket = new WebSocket("ws://localhost:3001");
 
+let g;
 socket.onmessage = function(event) {
     var msg = JSON.parse(event.data);
+    console.log(msg);
     if (msg.action == 'start') {
         console.log('player id', msg.id);
         var root = document.getElementById('root');
-        let g = new GameBoard(11, 11, root, msg.id);
+        g = new GameBoard(11, 11, root, msg.deck, msg.id);
+    }
+    if (msg.action == 'step') {
+//        g.activePlayer = msg.activePlayer;
+        g.applyUserStep(msg.x, msg.y);
     }
 };
 

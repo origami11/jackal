@@ -56,7 +56,7 @@ export class Card {
         this.n = Math.round(Math.random()*3);
         var angle = -this.n*90;
 
-        this.element.style.transform = 'rotate('+angle+'deg)';
+        front.style.transform = 'rotate('+angle+'deg)';
     }
 
     setGoldCount(n) {

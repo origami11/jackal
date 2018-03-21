@@ -27,15 +27,15 @@ function offsetEq(p, r, x, y) {
 }
 
 class ArrowCard extends Card {
-    constructor(image) { 
-        super(image);  
+    constructor(image, rotN) { 
+        super(image, rotN);  
         this.repeatMove = true;
     } 
 }
 
 export class Arrow1 extends ArrowCard {
-    constructor() { 
-        super('arrow_01');  
+    constructor(rotN) { 
+        super('arrow_01', rotN);  
     } 
 
     nextMove(pirate, x, y, lastPos) {
@@ -45,8 +45,8 @@ export class Arrow1 extends ArrowCard {
 }
 
 export class Arrow2 extends ArrowCard {
-    constructor() { 
-        super('arrow_02');  
+    constructor(rotN) { 
+        super('arrow_02', rotN);  
         this.repeatMove = true;
     }   
 
@@ -57,8 +57,8 @@ export class Arrow2 extends ArrowCard {
 }
 
 export class Arrow3 extends ArrowCard {
-    constructor() { 
-        super('arrow_03');  
+    constructor(rotN) { 
+        super('arrow_03', rotN);  
         this.repeatMove = true;
     }    
 
@@ -71,8 +71,8 @@ export class Arrow3 extends ArrowCard {
 }
 
 export class Arrow4 extends ArrowCard {
-    constructor() { 
-        super('arrow_04');  
+    constructor(rotN) { 
+        super('arrow_04', rotN);  
     }
 
     nextMove(pirate, x, y, lastPos) {
@@ -84,8 +84,8 @@ export class Arrow4 extends ArrowCard {
 }
 
 export class Arrow5 extends ArrowCard {
-    constructor() { 
-        super('arrow_05');  
+    constructor(rotN) { 
+        super('arrow_05', rotN);  
     }    
 
     nextMove(pirate, x, y, lastPos) {
@@ -98,8 +98,8 @@ export class Arrow5 extends ArrowCard {
 }
 
 export class Arrow6 extends ArrowCard {
-    constructor() { 
-        super('arrow_06');  
+    constructor(rotN) { 
+        super('arrow_06', rotN);  
     }    
 
     nextMove(pirate, x, y, lastPos) {
@@ -113,8 +113,8 @@ export class Arrow6 extends ArrowCard {
 }
 
 export class Arrow7 extends ArrowCard {
-    constructor() { 
-        super('arrow_07');  
+    constructor(rotN) { 
+        super('arrow_07', rotN);  
     }
 
     nextMove(pirate, x, y, lastPos) {

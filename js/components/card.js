@@ -2,7 +2,7 @@ import { m } from '../utils.js';
 import { cellSize, debugGold } from '../options.js';
 
 export class Card {    
-    constructor(image) {
+    constructor(image, rotN) {
         const dx = 1;
         this.size = cellSize;
         this.isOpen = false;
@@ -53,10 +53,10 @@ export class Card {
         this.x = 0;
         this.y = 0;
 
-        this.n = Math.round(Math.random()*3);
-        var angle = -this.n*90;
+        this.n = rotN;
 
-        front.style.transform = 'rotate('+angle+'deg)';
+        var angle = -this.n*90;
+        this.card.style.transform = 'rotateZ('+angle+'deg)';
     }
 
     setGoldCount(n) {
@@ -92,7 +92,11 @@ export class Card {
         if (!this.isOpen) {
             this.isOpen = true;
             this.element.style.zIndex = 100;
-            this.card.classList.add('flipped');
+
+            var angle = -this.n*90;
+            this.card.style.transform = 'rotateZ('+angle+'deg) rotateY(180deg)';
+
+//            this.card.classList.add('flipped');
             this.setGoldCount(this.goldCount);
         }
     }

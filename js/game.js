@@ -34,11 +34,12 @@ function deckFromList(list) {
         'gold_01': Gold1, 'gold_02': Gold2, 'gold_03': Gold3, 'gold_04': Gold4, 'gold_05': Gold5,
         'rotate_2n': Rotate2n, 'rotate_3n': Rotate3n, 'rotate_4n': Rotate4n, 'rotate_5n': Rotate5n 
     };
-    return list.map(item => new cardsMap[item]);
+    return list.map(item => new cardsMap[item[0]](item[1]));
 }
 
 class GameBoard {  
     constructor(w, h, root, list, id) {
+        this.id = id;
         this.width = w;
         this.height = h;
         this.colors = ['white', 'red', 'yellow', 'green'];
@@ -74,26 +75,29 @@ class GameBoard {
         root.style.height = cellSize * (h + 2) + 'px';
         root.appendChild(this.element);
 
-
         this.lastPos = [];
 
-        this.element.addEventListener('click', (event) => {        
+        this.element.addEventListener('click', (event) => {
             var x = Math.floor((event.clientX - this.element.offsetLeft) / cellSize) - 1;
             var y = Math.floor((event.clientY - this.element.offsetTop) / cellSize) - 1;
 
-            var last = this.activePlayer;
-            if (id == 1 && [1, 3].indexOf(this.activePlayer) >= 0 || id == 2 && [0, 2].indexOf(this.activePlayer) >= 0) {
+            if (this.isActivePlayer()) {
                 this.applyUserStep(x, y);
                 socket.send(JSON.stringify({action: 'step', activePlayer: this.activePlayer, x: x, y: y}));
             }
         });
 
-        var player = this.getActivePlayer();
         this.render();
+
+        var player = this.getActivePlayer();
         this.showMoves(player.getActiveElement(), this.lastPos);
         this.players.forEach(p => {
             p.setActive(p == player);
         });
+    }
+
+    isActivePlayer() {
+        return this.id == 1 && [1, 3].indexOf(this.activePlayer) >= 0 || this.id == 2 && [0, 2].indexOf(this.activePlayer) >= 0
     }
 
     applyUserStep(x, y) {
@@ -212,6 +216,38 @@ class GameBoard {
             || (x == this.width - 1 && y == this.height - 1);
     }
 
+    switchPirate(i) {
+        var player = this.getActivePlayer();
+        player.moveShip = false;
+        player.setActiveElement(i);
+
+        this.showMoves(player.getActiveElement(), []);
+    }
+
+    switchShip() {
+        var player = this.getActivePlayer();
+        player.moveShip = true;
+    }
+
+    switchGold() {
+        var player = this.getActivePlayer();
+        var p = player.getActiveElement();
+        var current = this.getCard(p.x, p.y);
+    
+        if (current && p.goldCount == 0 && current.goldCount > 0) {
+            current.setGoldCount(current.goldCount - 1);
+            p.setGoldCount(1);
+        } else if (current && p.goldCount > 0) {
+            current.setGoldCount(current.goldCount + 1);
+            p.setGoldCount(0);
+        } else if (p.goldCount > 0 && player.pirateOnShip(p)) {
+            player.ship.addGold();
+                p.setGoldCount(0);
+        }
+    
+        this.showMoves(p);
+    }
+
     render(id) {
         
         this.deck.forEach(item => {
@@ -244,33 +280,16 @@ class GameBoard {
         actions.appendChild(actionBtn);
 
         actionBtn.addEventListener('click', () => {
-            var player = this.getActivePlayer();
-            var p = player.getActiveElement();
-            var current = this.getCard(p.x, p.y);
-
-            if (current && p.goldCount == 0 && current.goldCount > 0) {
-                current.setGoldCount(current.goldCount - 1);
-                p.setGoldCount(1);
-            } else if (current && p.goldCount > 0) {
-                current.setGoldCount(current.goldCount + 1);
-                p.setGoldCount(0);
-            } else if (p.goldCount > 0 && player.pirateOnShip(p)) {
-                player.ship.addGold();
-                p.setGoldCount(0);
-            }
-
-            this.showMoves(p);
+            this.switchGold();
+            socket.send(JSON.stringify({action: 'gold', activePlayer: this.activePlayer}));
         });
 
         for(let i = 0; i < 3; i++) {
             var p = m('button', 'select-pirate', {});
             p.textContent = 'Пират #' + (i + 1);
             p.addEventListener('click', () => {                
-                var player = this.getActivePlayer();
-                player.moveShip = false;
-                player.setActiveElement(i);
-
-                this.showMoves(player.getActiveElement(), []);
+                this.switchPirate(i);
+                socket.send(JSON.stringify({action: 'pirate', activePlayer: this.activePlayer, index: i}));
             });
             actions.appendChild(p);
         }
@@ -278,14 +297,20 @@ class GameBoard {
         var sh = m('button', 'select-ship', {});
         sh.textContent = 'Корабль';
         sh.addEventListener('click', () => {
-            var player = this.getActivePlayer();
-            player.moveShip = true;
+            this.switchShip();
+            socket.send(JSON.stringify({action: 'ship', activePlayer: this.activePlayer}));
         });
 
         actions.appendChild(sh);
 
         this.onmove.subscribe(() => {
             var p = this.getActivePlayer().getActiveElement();
+            if (!this.isActivePlayer()) {
+                actions.style.display = 'none';
+                return;
+            }
+            actions.style.display = 'block';
+
             var current = this.getCard(p.x, p.y);
             if (current && p.goldCount == 0 && current.goldCount > 0) {
                 actionBtn.textContent = 'Взять монету';
@@ -311,8 +336,16 @@ socket.onmessage = function(event) {
         var root = document.getElementById('root');
         g = new GameBoard(11, 11, root, msg.deck, msg.id);
     }
+    if (msg.action == 'ship') {
+        g.switchShip();
+    }
+    if (msg.action == 'gold') {
+        g.switchGold();
+    }
+    if (msg.action == 'pirate') {
+        g.switchPirate(msg.index);
+    }
     if (msg.action == 'step') {
-//        g.activePlayer = msg.activePlayer;
         g.applyUserStep(msg.x, msg.y);
     }
 };

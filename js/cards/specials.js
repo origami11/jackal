@@ -1,22 +1,22 @@
 import { Card } from '../components/card.js';
 
 export class Ice extends Card {
-    constructor() { 
-        super('ice'); 
+    constructor(rotN) { 
+        super('ice', rotN); 
         this.repeatMove = true;
     }    
 }
 
 export class Trap extends Card {
-    constructor() { 
-        super('trap'); 
+    constructor(rotN) { 
+        super('trap', rotN); 
         this.waitMoves = -1;
     }    
 }
 
 export class Alligator extends Card {
-    constructor() { 
-        super('alligator'); 
+    constructor(rotN) { 
+        super('alligator', rotN); 
         this.repeatMove = true;
     }    
 
@@ -27,24 +27,24 @@ export class Alligator extends Card {
 }
 
 export class Balloon extends Card {
-    constructor() { super('balloon'); }    
+    constructor(rotN) { super('balloon', rotN); }    
 }
 
 export class Cannon extends Card {
-    constructor() { super('cannon'); }    
+    constructor(rotN) { super('cannon', rotN); }    
 }
 
 export class Default extends Card {
-    constructor() { super('default'); }    
+    constructor(rotN) { super('default', rotN); }    
 }
 
 export class Girl extends Card {
-    constructor() { super('girl'); }    
+    constructor(rotN) { super('girl', rotN); }    
 }
 
 export class Plane extends Card {
-    constructor() { 
-        super('plane'); 
+    constructor(rotN) { 
+        super('plane', rotN); 
     }    
 
     nextMove(pirate, x, y, lastPos) {
@@ -53,15 +53,15 @@ export class Plane extends Card {
 }
 
 export class Rum extends Card {
-    constructor() { 
-        super('rum'); 
+    constructor(rotN) { 
+        super('rum', rotN); 
         this.waitMoves = 1;
     }
 }
 
 export class Horse extends Card {
-    constructor() { 
-        super('horse'); 
+    constructor(rotN) { 
+        super('horse', rotN); 
         this.repeatMove = true;
     }    
 
@@ -79,9 +79,9 @@ export class Horse extends Card {
 }
 
 export class Fortress extends Card {
-    constructor() { super('fortress'); }    
+    constructor(rotN) { super('fortress', rotN); }    
 }
 
 export class Cannibal extends Card {
-    constructor() { super('cannibal'); }    
+    constructor(rotN) { super('cannibal', rotN); }    
 }

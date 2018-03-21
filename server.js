@@ -62,7 +62,7 @@ class Game {
         this.cards.forEach((card) => {
             sum += card[1];
             for(var i = 0; i < card[1]; i++) {
-                this.deck.push(card[0]);
+                this.deck.push([card[0], Math.round(Math.random()*3)]);
             }
         });
 

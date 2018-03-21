@@ -1,8 +1,8 @@
 import { Card } from '../components/card.js';
 
 export class RotateCard extends Card {
-    constructor(image, n) { 
-        super(image);  
+    constructor(image, rotN, n) { 
+        super(image, rotN);  
         this.waitMoves = n;
     }    
 
@@ -27,25 +27,25 @@ export class RotateCard extends Card {
 
 
 export class Rotate2n extends RotateCard {
-    constructor() { 
-        super('rotate_2n', 1);  
+    constructor(rotN) { 
+        super('rotate_2n', rotN, 1);  
     }    
 }
 
 export class Rotate3n extends RotateCard {
-    constructor() { 
-        super('rotate_3n', 2);  
+    constructor(rotN) { 
+        super('rotate_3n', rotN, 2);  
     }    
 }
 
 export class Rotate4n extends RotateCard {
-    constructor() { 
-        super('rotate_4n', 3);  
+    constructor(rotN) { 
+        super('rotate_4n', rotN, 3);  
     }    
 }
 
 export class Rotate5n extends RotateCard {
-    constructor() { 
-        super('rotate_5n', 4);  
+    constructor(rotN) { 
+        super('rotate_5n', rotN, 4);  
     }    
 }

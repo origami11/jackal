@@ -7,6 +7,8 @@ import { Player } from './components/player.js';
 
 import { cellSize } from './options.js';
 
+import { Server } from './server.js';
+
 import { Arrow1, Arrow2, Arrow3, Arrow4, Arrow5, Arrow6, Arrow7 } from './cards/arrows.js';
 import { Rotate2n, Rotate3n, Rotate4n, Rotate5n } from './cards/rotates.js';
 import { Empty1, Empty2, Empty3, Empty4 } from './cards/empty.js';
@@ -80,7 +82,6 @@ class GameBoard {
             // console.log(x, y);
 
             var p = this.getActivePlayer();
-            console.log(p.moveShip);
             if (p.moveShip) {
                 if (p.setShipXY(x, y)) {
                     p.setActive(false);
@@ -199,8 +200,6 @@ class GameBoard {
             this.deck.push(new Default());
         }
 
-        console.log(sum, count - sum);
-
         this.deck = shuffle(this.deck);
     }
 
@@ -311,6 +310,19 @@ class GameBoard {
     }
 }
 
+var socket = new WebSocket("ws://localhost:3001");
 
-var root = document.getElementById('root');
-let g = new GameBoard(11, 11, root);
+socket.onmessage = function(event) {
+    var msg = JSON.parse(event.data);
+    if (msg.action == 'start') {
+        console.log('player id', msg.id);
+        var root = document.getElementById('root');
+        let g = new GameBoard(11, 11, root, msg.id);
+    }
+};
+
+socket.onopen = function (event) {
+    console.log('wait');
+};
+
+

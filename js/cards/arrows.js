@@ -30,11 +30,6 @@ class ArrowCard extends Card {
     constructor(image) { 
         super(image);  
         this.repeatMove = true;
-
-        this.n = Math.round(Math.random()*3);
-        var angle = -this.n*90;
-
-        this.element.style.transform = 'rotate('+angle+'deg)';
     } 
 }
 

@@ -3,7 +3,7 @@
 // step(x, y) - ход игрока
 // onstep - ждет хода игрока возвращает координаты и состояние (с монетой, умер ...) 
 
-class Server {
+export class Server {
     constructor() {
     }
 

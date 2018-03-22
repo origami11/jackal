@@ -3,6 +3,7 @@ import { Card } from '../components/card.js';
 export class RotateCard extends Card {
     constructor(image, rotN, n) { 
         super(image, rotN);  
+        this.allowWithPirates = true;
         this.waitMoves = n;
     }    
 

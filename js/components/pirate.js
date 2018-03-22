@@ -6,11 +6,13 @@ export class Pirate {
         this.color = color; 
         this.goldCount = 0;
         this.waitMoves = 0;
+        this.isDead = false;
+        this.ID = id;
 
         this.element = m('div', 'player', {
             width: cellSize + 'px',
             height: cellSize + 'px',
-            zIndex: 1000 - id
+            zIndex: 1000 - (id + 1)
         });
 
         this.image = m('div', 'player-image', {
@@ -22,7 +24,7 @@ export class Pirate {
         this.image.appendChild(this.text);
         this.image.appendChild(this.gold);
 
-        this.text.textContent = id;
+        this.text.textContent = (id + 1);
 
         this.element.appendChild(this.image);
 

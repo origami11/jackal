@@ -4,13 +4,14 @@ import { Ship } from './ship.js';
 import { Pirate } from './pirate.js';
 
 export class Player {
-    constructor(x, y, color) {
+    constructor(x, y, color, id) {
         this.color = color;
         this.moveShip = false;
+        this.ID = id;
 
         this.activeElement = 0;
         this.status = new Listener();
-        this.pirates = [new Pirate(x, y, color, 1), new Pirate(x, y, color, 2), new Pirate(x, y, color, 3)];
+        this.pirates = [new Pirate(x, y, color, 0), new Pirate(x, y, color, 1), new Pirate(x, y, color, 2)];
         this.ship = new Ship(x, y, color);
     }
 
@@ -42,6 +43,14 @@ export class Player {
 
     piratesOnShip() {
        return this.pirates.reduce((s, p) => s + (this.pirateOnShip(p) ? 1 : 0), 0);
+    }
+
+    hasPirateXY(x, y) {
+        return this.pirates.some(p => (p.x == x && p.y == y));
+    }
+
+    findPirateXY(x, y) {
+        return this.pirates.find(p => (p.x == x && p.y == y));
     }
 
     setShipXY(x, y) {        

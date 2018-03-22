@@ -91,8 +91,8 @@ class Game {
     }
 
     start() {        
-        this.first.send(JSON.stringify({action: 'start', id: 1, deck: this.deck}));
-        this.second.send(JSON.stringify({action: 'start', id: 2, deck: this.deck}));
+        this.first.send(JSON.stringify({action: 'start', data: {id: 1, deck: this.deck, count: 2}}));
+        this.second.send(JSON.stringify({action: 'start', data: {id: 2, deck: this.deck, count: 2}}));
     }
 }
 
@@ -112,9 +112,9 @@ wss.on('connection', function connection(ws) {
 
     ws.on('message', function(message) {
         console.log('broadcast', message);
-        // Broadcast to everyone else.
+        // Посылаю сообщение всем
         wss.clients.forEach(function (client) {
-            if (client !== ws && client.readyState === WebSocket.OPEN) {
+            if (/*client !== ws &&*/ client.readyState === WebSocket.OPEN) {
                 client.send(message);
             }
         });

@@ -27,11 +27,16 @@ export class Alligator extends Card {
 }
 
 export class Balloon extends Card {
-    constructor(rotN) { super('balloon', rotN); }    
+    constructor(rotN) { 
+        super('balloon', rotN); 
+    }    
 }
 
 export class Cannon extends Card {
-    constructor(rotN) { super('cannon', rotN); }    
+    constructor(rotN) { 
+        super('cannon', rotN); 
+        this.allowToOcean = true;
+    }    
 }
 
 export class Default extends Card {
@@ -39,7 +44,9 @@ export class Default extends Card {
 }
 
 export class Girl extends Card {
-    constructor(rotN) { super('girl', rotN); }    
+    constructor(rotN) { 
+        super('girl', rotN); 
+    }    
 }
 
 export class Plane extends Card {
@@ -79,9 +86,15 @@ export class Horse extends Card {
 }
 
 export class Fortress extends Card {
-    constructor(rotN) { super('fortress', rotN); }    
+    constructor(rotN) { 
+        super('fortress', rotN); 
+        this.allowWithGold = false;
+        this.allowWithPirates = true;
+    }    
 }
 
 export class Cannibal extends Card {
-    constructor(rotN) { super('cannibal', rotN); }    
+    constructor(rotN) { 
+        super('cannibal', rotN); 
+    }    
 }

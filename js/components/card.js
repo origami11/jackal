@@ -7,6 +7,9 @@ export class Card {
         this.size = cellSize;
         this.isOpen = false;
         this.repeatMove = false;
+        this.allowWithGold = true;
+        this.allowWithPirates = false;
+        this.allowToOcean = false;
 
         this.goldCount = 0;
 

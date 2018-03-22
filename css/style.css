@@ -81,6 +81,7 @@ html, body {
     position: absolute;
     z-index: 200;
     opacity: 0.9;
+    transition: transform 1s;    
 }
 
 .player-image {

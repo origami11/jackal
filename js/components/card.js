@@ -73,7 +73,7 @@ export class Card {
     }
 
     nextMove(pirate, x, y, lastPos) {
-        return (Math.abs(pirate.x - x) <= 1 && Math.abs(pirate.y - y) <= 1);
+        return (Math.abs(pirate.x - x) <= 1 && Math.abs(pirate.y - y) <= 1) && (y != this.y || x != this.x);
     }
 
     updatePos(pirate) {

@@ -100,50 +100,82 @@ class GameBoard {
         return this.id == 1 && [1, 3].indexOf(this.activePlayer) >= 0 || this.id == 2 && [0, 2].indexOf(this.activePlayer) >= 0
     }
 
+    pirateOnIsland(pirate) {
+       return ;
+    }
+
+    allowMoveToCard(pirate, current, next, lastPos, x, y) {
+        // Пират может передвигаться на карту 1. У него нет золота 2. Карта открыта
+        let canMoveTo = next && (next.isOpen || pirate.goldCount == 0);       
+        // Пират может передвигаться на карту если на ней стоит пират и у текущего пирата нет монеты или это специальная клетка
+        // Пират может передвигаться на карту если на нее можно ходит с золотом
+
+        // Передвигаемся с суши
+        if (current) {
+            return current.nextMove(pirate, x, y, lastPos) && canMoveTo;
+        } else 
+        // Передвигаемся с корабля
+        if (this.nextMove(pirate, x, y)) {
+            return canMoveTo;
+        }
+        // Передвигаемся по воде
+
+        return false; 
+    }
+
+    allowMoveToShip(p, pirate, x, y) {
+        return p.ship.x == x && p.ship.y == y && 
+            Math.abs(pirate.x - p.ship.x) <= 1 && Math.abs(pirate.y - p.ship.y) <= 1 && 
+            (pirate.x != p.ship.x || pirate.y != p.ship.y);
+    }
+
     applyUserStep(x, y) {
-       var p = this.getActivePlayer();
-       if (p.moveShip) {
-           if (p.setShipXY(x, y)) {
-               p.setActive(false);
-               this.nextPlayer();
-               p.moveShip = false;
-               this.lastPos = [];
-               this.updateMove(this.lastPos);
-           }
+        var p = this.getActivePlayer();
 
-           return;
-       }
+        if (p.moveShip) {
+            if (p.setShipXY(x, y)) {
+                p.setActive(false);
+                this.nextPlayer();
+                p.moveShip = false;
+                this.lastPos = [];
+                this.updateMove(this.lastPos);
+            }
 
-       var next = this.getCard(x, y);
-       var pirate = p.getActiveElement();
-       var current = this.getCard(pirate.x, pirate.y);
+            return;
+        }
 
-       if ((next && current && current.nextMove(pirate, x, y, this.lastPos)) || 
-           (next && !current && this.nextMove(pirate, x, y))) {
+        var next = this.getCard(x, y);
+        var pirate = p.getActiveElement();
 
-           next.flip();
-           this.lastPos.push({x: pirate.x, y: pirate.y});
+        var current = this.getCard(pirate.x, pirate.y)
+        if (this.allowMoveToCard(pirate, current, next, this.lastPos, x, y)) {        
 
-           next.updatePos(pirate);
+            next.flip();
+            this.lastPos.push({x: pirate.x, y: pirate.y});
 
-           if (!next.repeatMove) {
-               p.setActive(false);
-               this.nextPlayer();
-               this.lastPos = [];
-           }
+            next.updatePos(pirate);
 
-           this.updateMove(this.lastPos);
-       }
+            if (!next.repeatMove) {
+                p.setActive(false);
+                this.nextPlayer();
+                this.lastPos = [];
+            }
 
-       if (p.ship.x == x && p.ship.y == y) {
-           pirate.setXY(p.ship.x, p.ship.y);
+            this.updateMove(this.lastPos);
+        } 
 
-           p.setActive(false);
-           this.nextPlayer();
-           this.lastPos = [];
+        // Передвижение с клетки на корабль (только если пират рядом), но не на карабле
+        var toShip = this.allowMoveToShip(p, pirate, x, y);
+        console.log('ship', toShip, x, y);
+        if (toShip) {
+            pirate.setXY(p.ship.x, p.ship.y);
 
-           this.updateMove(this.lastPos);
-       }
+            p.setActive(false);
+            this.nextPlayer();
+            this.lastPos = [];
+            
+            this.updateMove(this.lastPos);
+        }
     }
 
     updateMove(lastPos) {
@@ -160,17 +192,12 @@ class GameBoard {
         var card = this.getCard(p.x, p.y);
         for(var x = 0; x < this.width; x++) {
             for(var y = 0; y < this.height; y++) {
-                var cardForMove = this.getCard(x, y);
-                if (cardForMove) {
-                    var canMove = card ? card.nextMove(p, x, y, lastPos) : this.nextMove(p, x, y);                
-                    var isActive = (canMove && (cardForMove.isOpen || p.goldCount == 0));
-
-                    cardForMove.setActive(isActive, p.color);                    
+                var next = this.getCard(x, y);
+                if (next) {
+                    next.setActive(this.allowMoveToCard(p, card, next, lastPos, x, y), p.color);
                 }
             }
         }
-
-        console.log(p.waitMoves);
 
         this.onmove.fire(); 
     }

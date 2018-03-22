@@ -10,6 +10,7 @@ export class Card {
         this.allowWithGold = true;
         this.allowWithPirates = false;
         this.allowToOcean = false;
+        this.image = image;
 
         this.goldCount = 0;
 

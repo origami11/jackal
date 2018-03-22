@@ -1,5 +1,6 @@
 ﻿//"use strict";
-import { m, shuffle } from './utils.js';
+import { m } from './utils.js';
+import { makeRandomDeck } from './game/deck.js';
 import { Listener } from './listener.js';
 
 import { Card } from './components/card.js';
@@ -30,7 +31,7 @@ function deckFromList(list) {
         'horse': Horse, 
         'fortress': Fortress, 
         'rum': Rum, 
-            'plane': Plane, 
+        'plane': Plane, 
         'gold_01': Gold1, 'gold_02': Gold2, 'gold_03': Gold3, 'gold_04': Gold4, 'gold_05': Gold5,
         'rotate_2n': Rotate2n, 'rotate_3n': Rotate3n, 'rotate_4n': Rotate4n, 'rotate_5n': Rotate5n 
     };
@@ -152,14 +153,14 @@ class GameBoard {
         return false; 
     }
 
-    allowMoveToShip(p, pirate, x, y) {
+    allowMoveToShip(p, pirate, current, lastPos, x, y) {
         return p.ship.x == x && p.ship.y == y && 
-            Math.abs(pirate.x - p.ship.x) <= 1 && Math.abs(pirate.y - p.ship.y) <= 1 && 
+            ((Math.abs(pirate.x - p.ship.x) <= 1 && Math.abs(pirate.y - p.ship.y) <= 1) || current.image == 'balloon' || (current && current.nextMove(pirate, x, y, lastPos))) && 
             (pirate.x != p.ship.x || pirate.y != p.ship.y);
     }
 
-    allowMoveToOcean() {
-        return true;
+    allowMoveToOcean(pirate, current, lastPos, x, y) {
+        return current && current.allowToOcean && current.nextMove(pirate, x, y, lastPos);
     }
 
     applyUserStep(x, y) {
@@ -223,7 +224,7 @@ class GameBoard {
             this.updateMove(this.lastPos);
         }  else 
         // Передвижение с клетки на корабль (только если пират рядом), но не на карабле
-        if (this.allowMoveToShip(p, pirate, x, y)) { 
+        if (this.allowMoveToShip(p, pirate, current, this.lastPos, x, y)) { 
             pirate.setXY(p.ship.x, p.ship.y);
 
             p.setActive(false);
@@ -231,8 +232,24 @@ class GameBoard {
             this.lastPos = [];
             
             this.updateMove(this.lastPos);
-        } else 
-        if (this.allowMoveToOcean()) {
+        } else
+        // Передвижение на воду 
+        if (this.allowMoveToOcean(pirate, current, this.lastPost, x, y)) {
+            sendMessage('setxy', {
+                player: p.ID, 
+                pirate: pirate.ID, 
+                x: x, 
+                y: y
+            });
+            sendMessage('setgold', {
+                player: p.ID, 
+                pirate: pirate.ID, 
+                gold: 0 
+            });
+            p.setActive(false);
+            this.nextPlayer();
+            this.lastPos = [];            
+            this.updateMove(this.lastPos);
         }
     }
 
@@ -419,45 +436,14 @@ class FakeWebSocket {
     constructor(url) {
         this.onopen = null;
         this.onmessage = null;
-        this.deck = [];
-
-        this.cards = [
-            ['empty_01', 10], ['empty_02', 10], ['empty_03', 10], ['empty_03', 10], 
-            ['arrow_01', 3], ['arrow_02', 3], ['arrow_03', 3], ['arrow_04', 3], ['arrow_05', 3], ['arrow_06', 3], ['arrow_07', 3],  
-            ['ice', 6], 
-            ['girl', 1], 
-            ['trap', 3], 
-            ['alligator', 4], 
-            ['baloon', 2], 
-            ['cannibal', 1], 
-            ['cannon', 2], 
-            ['horse', 2], 
-            ['fortress', 2], 
-            ['rum', 4], 
-            ['plane', 1], 
-            ['gold_01', 5], ['gold_02', 5], ['gold_03', 3], ['gold_04', 2], ['gold_05', 1],
-            ['rotate_2n', 5], ['rotate_3n', 4], ['rotate_4n', 2], ['rotate_5n', 1] 
-        ];
-        this.makeDeck();
-
-        setTimeout(() => {
-            this.onopen(null);
-            this.serverSend(JSON.stringify({action: 'start', data: {id: 1, deck: this.deck, count: 1}}));
-        }, 100);
-    }
-
-    makeDeck() {
-        var count = this.width * this.height - 4;
-        var sum = 0;
-
-        this.cards.forEach((card) => {
-            sum += card[1];
-            for(var i = 0; i < card[1]; i++) {
-                this.deck.push([card[0], Math.round(Math.random()*3)]);
-            }
-        });
-
-        this.deck = shuffle(this.deck);
+//        this.deck = makeRandomDeck(11, 11);
+        fetch('./deck.json').then(r => r.json()).then((data) => {
+            this.deck = data;
+            setTimeout(() => {
+                this.onopen(null);
+                this.serverSend(JSON.stringify({action: 'start', data: {id: 1, deck: this.deck, count: 1}}));
+            }, 100);
+        })
     }
 
     serverSend(message) {

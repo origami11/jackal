@@ -28,14 +28,38 @@ export class Alligator extends Card {
 
 export class Balloon extends Card {
     constructor(rotN) { 
-        super('balloon', rotN); 
+        super('balloon', rotN);
+        this.repeatMove = true; 
+        this.allowToOcean = true;
     }    
+
+    nextMove(pirate, x, y, lastPos) {
+        // pirate.player.ship.x == x && pirate.player.ship.y == y
+        return false;
+    }
 }
 
 export class Cannon extends Card {
-    constructor(rotN) { 
+    constructor(rotN) {
         super('cannon', rotN); 
         this.allowToOcean = true;
+        this.repeatMove = true; 
+    }
+
+    nextMove(pirate, x, y, lastPos) {
+        if (this.n == 0) {
+            return this.x == x && y == -1;
+        }
+        if (this.n == 1) {
+            return this.y == y && x == -1;
+        }
+        if (this.n == 2) {
+            return this.x == x && y == 11;
+        }
+        if (this.n == 3) {
+            return this.y == y && x == 11;
+        }
+        return false;
     }    
 }
 

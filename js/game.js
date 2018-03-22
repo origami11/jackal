@@ -460,7 +460,9 @@ function sendMessage(name, data) {
     socket.send(JSON.stringify({action: name, data: data}));
 }
 
-var socket = new FakeWebSocket("ws://"+window.location.hostname+":3001");
+var socket = window.debugGame ?
+new FakeWebSocket("ws://"+window.location.hostname+":3001")
+: new WebSocket("ws://"+window.location.hostname+":3001");
 
 let g;
 socket.onmessage = function(event) {

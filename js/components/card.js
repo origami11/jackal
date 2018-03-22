@@ -81,7 +81,7 @@ export class Card {
     }
 
     updatePos(pirate) {
-        pirate.setXY(this.x, this.y);
+//        pirate.setXY(this.x, this.y);
     }
 
     setActive(flag, color) {

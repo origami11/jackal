@@ -47,4 +47,21 @@ export class Pirate {
     setActive(flag) {
         this.element.style.opacity = flag ? 1 : 0.8;
     }
+
+    getStatusName() {
+        var n = (this.ID + 1);
+        if (this.isDead) {
+            return 'Умер #' + n
+        }
+        if (this.waitMoves > 0) {
+            return 'Пират #' + n + ' ('+this.waitMoves+')'; 
+        }
+        return 'Пират #' + n;
+    }
+
+    setDead() {
+        this.isDead = true;
+        this.setXY(-2, -2);
+        this.element.style.display = 'none';
+    }
 }

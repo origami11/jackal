@@ -55,4 +55,3 @@ function makeDeck(w, h, cards) {
 export var makeRandomDeck = function (w, h) {
     return makeDeck(w, h, cards);
 }
-

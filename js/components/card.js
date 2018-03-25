@@ -76,6 +76,15 @@ export class Card {
         this.element.style.top = (y * this.size) + 'px';
     }
 
+    enterCard(pirate) {
+    }
+
+    leaveCard(pirate) {
+    }
+
+    updateLoop(pirate) {
+    }
+   
     nextMove(pirate, x, y, lastPos) {
         return (Math.abs(pirate.x - x) <= 1 && Math.abs(pirate.y - y) <= 1) && (y != this.y || x != this.x);
     }

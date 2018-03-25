@@ -5,19 +5,31 @@ import { Pirate } from './pirate.js';
 
 export class Player {
     constructor(x, y, color, id) {
+        this.step = 0;
         this.color = color;
         this.moveShip = false;
         this.ID = id;
+        this.flag = false;
 
         this.activeElement = 0;
         this.status = new Listener();
         this.pirates = [new Pirate(x, y, color, 0), new Pirate(x, y, color, 1), new Pirate(x, y, color, 2)];
+        this.pirates.forEach(p => p.pID = id);
+
         this.ship = new Ship(x, y, color);
     }
 
     setActive(flag) {
-        this.pirates[0].setActive(flag);
-        this.status.fire(flag);
+        if (flag != this.flag) {
+            this.pirates[this.activeElement].setActive(flag, this.step);
+            this.status.fire(flag);
+            this.flag = flag;
+
+            if (flag) {
+                this.step ++;
+                this.pirates.forEach(p => p.nextLoop());
+            }
+        }
     }
 
     setActiveElement(n) {
@@ -47,10 +59,6 @@ export class Player {
 
     hasPirateXY(x, y) {
         return this.pirates.some(p => (p.x == x && p.y == y));
-    }
-
-    findPirateXY(x, y) {
-        return this.pirates.find(p => (p.x == x && p.y == y));
     }
 
     setShipXY(x, y) {        

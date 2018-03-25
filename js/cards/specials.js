@@ -10,7 +10,27 @@ export class Ice extends Card {
 export class Trap extends Card {
     constructor(rotN) { 
         super('trap', rotN); 
-        this.waitMoves = -1;
+        this.pirates = [];
+    }
+
+    getFriends(pirate) {
+        return this.pirates.filter(p => pirate.isFriend(p));
+    }
+
+    enterCard(pirate) {
+        var friends = this.getFriends(pirate);
+        if (friends.length > 0) {
+            friends.forEach(p => {
+                p.waitLoop = 0
+            });
+            this.pirates = this.pirates.filter(p => friends.indexOf(p) >= 0);
+        } else {
+            pirate.waitLoop = -1;
+            this.pirates.push(pirate);
+        }
+    }
+
+    leaveCard(pirate) {
     }    
 }
 
@@ -86,7 +106,19 @@ export class Plane extends Card {
 export class Rum extends Card {
     constructor(rotN) { 
         super('rum', rotN); 
-        this.waitMoves = 1;
+        this.waitLoop = 2;
+    }
+
+    enterCard(pirate) {
+        console.log('enter', pirate);
+        pirate.waitLoop = this.waitLoop;
+    }
+
+    updateLoop(pirate) {
+        console.log('update', pirate);
+        if (pirate.waitLoop > 0) {
+            pirate.waitLoop -= 1;  
+        }
     }
 }
 

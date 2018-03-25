@@ -6,6 +6,9 @@ export class Pirate {
         this.color = color; 
         this.goldCount = 0;
         this.waitMoves = 0;
+        this.waitLoop = 0;
+        this.pID = 0; // Родительский ID
+
         this.isDead = false;
         this.ID = id;
 
@@ -32,6 +35,16 @@ export class Pirate {
         this.setGoldCount(this.goldCount);
     }
 
+    allowMove() {
+        return this.waitLoop == 0;
+    }
+
+    nextLoop() {
+        if (this.card) {
+            this.card.updateLoop(this);
+        }
+    }
+
     setXY(x, y) {
         this.x = x;
         this.y = y;
@@ -39,12 +52,16 @@ export class Pirate {
         this.element.style.top = (y * cellSize) + 'px';
     }
 
+    matchXY(x, y) {
+        return this.x == x && this.y == y;
+    }
+
     setGoldCount (n) {
         this.goldCount = n;
         this.gold.style.display = (n == 0) ? 'none' : 'block';        
     }
 
-    setActive(flag) {
+    setActive(flag, step) {
         this.element.style.opacity = flag ? 1 : 0.8;
     }
 
@@ -54,9 +71,16 @@ export class Pirate {
             return 'Умер #' + n
         }
         if (this.waitMoves > 0) {
-            return 'Пират #' + n + ' ('+this.waitMoves+')'; 
+            return 'Пират #' + n + ' (M'+this.waitMoves+')'; 
+        }
+        if (this.waitLoop > 0) {
+            return 'Пират #' + n + ' (L'+this.waitLoop+')'; 
         }
         return 'Пират #' + n;
+    }
+
+    isFriend(p) {
+        return this.pID = p.pID;
     }
 
     setDead() {

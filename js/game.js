@@ -87,6 +87,7 @@ class GameBoard {
             var x = Math.floor((event.clientX - this.element.offsetLeft) / cellSize) - 1;
             var y = Math.floor((event.clientY - this.element.offsetTop) / cellSize) - 1;
 
+                        
             if (this.isActivePlayer()) {
                 // this.applyUserStep(x, y);
                 sendMessage('step', {player: this.activePlayer, x: x, y: y});
@@ -119,17 +120,17 @@ class GameBoard {
         return enemy.some(n => this.players[n].hasPirateXY(x, y));
     }
 
-    getEnemy(card) {
+    forEachEnemy(card, fn) {
         var x = card.x, y = card.y;
         var enemy = this.getEnemyPlayers(this.activePlayer);
         for(var i = 0; i < enemy.length; i++) {
             var n = enemy[i];
-            var p = this.players[n].findPirateXY(x, y);
-            if (p) {
-                return {player: this.players[n], pirate: p};
-            }
+            this.players[n].pirates.forEach(p => {
+                if (p.matchXY(x, y)) {
+                    fn(this.players[n], p);
+                }
+            })
         };
-        return false;
     }
 
     allowMoveToCard(pirate, current, next, lastPos, x, y) {
@@ -165,6 +166,9 @@ class GameBoard {
     }
 
     applyUserStep(x, y) {
+
+        console.log(x, y);
+
         var player = this.getActivePlayer();
 
         if (player.moveShip) {
@@ -182,7 +186,8 @@ class GameBoard {
         var next = this.getCard(x, y);
         var pirate = player.getActiveElement();
 
-        if (pirate.isDead) {
+
+        if (pirate.isDead || !pirate.allowMove()) {
             return;
         }
 
@@ -197,24 +202,22 @@ class GameBoard {
             // Всплывающее окно с выбором пирата которого аттакуем
 //            console.log(this.hasEnemyPirates(next));
             if (!next.allowWithPirates && this.hasEnemyPirates(next)) {
-                var e = this.getEnemy(next);
-                if (e.pirate.goldCount > 0) {
-//                    e.pirate.setGoldCount(0); // Сообщение у пирата сменилось золото
-                    sendMessage('setgold', {
-                        player: e.player.ID, 
-                        pirate: e.pirate.ID, 
-                        gold: 0 
+                this.forEachEnemy(next, (player, pirate) => {
+                    if (pirate.goldCount > 0) {
+                        sendMessage('setgold', {
+                            player: player.ID, 
+                            pirate: pirate.ID, 
+                            gold: 0 
+                        }, true);
+                        sendMessage('cardgold', {card: next.ID, gold: next.goldCount + 1}, true);
+                    }
+                    sendMessage('setxy', {
+                        player: player.ID,    
+                        pirate: pirate.ID, 
+                        x: player.ship.x, 
+                        y: player.ship.y
                     }, true);
-                    //next.setGoldCount(next.goldCount + 1); // Сообщение у карты сменилось золотот
-                    sendMessage('cardgold', {card: next.ID, gold: next.goldCount + 1}, true);
-                }
-//                e.pirate.setXY(e.player.ship.x, e.player.ship.y); // Сообщение пират поменял координаты
-                sendMessage('setxy', {
-                    player: e.player.ID, 
-                    pirate: e.pirate.ID, 
-                    x: e.player.ship.x, 
-                    y: e.player.ship.y
-                }, true);
+                });
             }
 
             if (next.image == 'cannibal') {
@@ -248,7 +251,24 @@ class GameBoard {
         }  else 
         // Передвижение с клетки на корабль (только если пират рядом), но не на карабле
         if (this.allowMoveToShip(player, pirate, current, this.lastPos, x, y)) { 
-            pirate.setXY(player.ship.x, player.ship.y);
+
+//            this.setXY(pirate, player.ship.x, player.ship.y);
+            sendMessage('setxy', {
+                player: player.ID, 
+                pirate: pirate.ID, 
+                x: x, 
+                y: y
+            }, true);
+
+            player.ship.setGoldCount(player.ship.goldCount + pirate.goldCount);
+
+            sendMessage('setgold', {
+                player: player.ID, 
+                pirate: pirate.ID, 
+                gold: 0 
+            }, true);
+
+//            pirate.setXY(, );
 
             player.setActive(false);
             this.nextPlayer();
@@ -292,12 +312,30 @@ class GameBoard {
             for(var y = 0; y < this.height; y++) {
                 var next = this.getCard(x, y);
                 if (next) {
-                    next.setActive(!pirate.isDead && this.allowMoveToCard(pirate, card, next, lastPos, x, y), pirate.color);
+                    next.setActive(!pirate.isDead && pirate.allowMove() && this.allowMoveToCard(pirate, card, next, lastPos, x, y), pirate.color);
                 }
             }
         }
 
         this.onmove.fire(); 
+    }
+
+    setXY(pirate, x, y) {
+        var p = pirate;
+        if (p.x != x || p.y != y) {
+            // Событие при котром мы покидаем карту
+            if (p.card) {
+                p.card.leaveCard(p);
+            }
+
+            p.setXY(x, y);         
+            // Событие которое происходит когда пират вступает на карту   
+            var card = g.getCard(x, y);
+            if (card) {
+                card.enterCard(p);
+            }
+            p.card = card;            
+        }            
     }
 
     nextMove(pirate, x, y) {
@@ -515,7 +553,7 @@ function processMessages(event) {
     }
     if (action == 'setxy') {
         var p = g.players[data.player].pirates[data.pirate];
-        p.setXY(data.x, data.y);
+        g.setXY(p, data.x, data.y);
     }
     if (action == 'setgold') {
         var p = g.players[data.player].pirates[data.pirate];

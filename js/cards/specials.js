@@ -5,6 +5,22 @@ export class Ice extends Card {
         super('ice', rotN); 
         this.repeatMove = true;
     }    
+
+    nextMove(pirate, x, y, lastPos) {
+        var i = lastPos.length - 1;
+        var last = lastPos[i];
+
+        while (i >= 0 && last.card && last.card.image == 'ice') {
+            last = lastPos[i];
+            i--;
+        }
+        if (last.card && (last.card.image == 'horse' || last.card.image == 'plane')) {
+            return lastPos.card.nextMove(pirate, x, y, lastPos);
+        }
+        var nx = pirate.x + (this.x - last.x);
+        var ny = pirate.y + (this.y - last.y);
+        return nx == x && ny == y;
+    }
 }
 
 export class Trap extends Card {

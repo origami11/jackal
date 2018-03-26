@@ -223,7 +223,7 @@ class GameBoard {
         if (this.allowMoveToCard(player, pirate, current, next, this.lastPos, x, y)) {
 
             next.flip();
-            this.lastPos.push({x: pirate.x, y: pirate.y});
+            this.lastPos.push({x: pirate.x, y: pirate.y, card: current});
 
             // Атака на пирата
             // Всплывающее окно с выбором пирата которого аттакуем
@@ -411,9 +411,22 @@ class GameBoard {
     switchPirate(i) {
         var player = this.getActivePlayer();
         player.moveShip = false;
-        player.setActiveElement(i);
+        var pirate = player.pirates[i];
+        if (pirate.isDead) {
+            var r = player.canBeResurected(pirate);
+            if (r) {
+                pirate.setLive(r.card.x, r.card.y);
 
-        this.showMoves(player, player.getActiveElement(), []);
+                // Переход хода при воскрешении пирата
+                player.setActive(false);
+                this.nextPlayer();
+                this.lastPos = [];            
+                this.updateMove(this.lastPos);
+            }                        
+        } else if (player.pirates[i].allowMove()) {
+            player.setActiveElement(i);
+            this.showMoves(player, player.getActiveElement(), []);
+        }
     }
 
     switchShip() {
@@ -480,7 +493,7 @@ class GameBoard {
             var p = m('button', 'select-pirate', {});
             p.textContent = 'Пират #' + (i + 1);
             p.addEventListener('click', () => {              
-                sendMessage('pirate', {player: this.activePlayer, pirate: i});  
+                sendMessage('pirate', {player: this.activePlayer, pirate: i});
             });
             actions.appendChild(p);
             pirateBtn.push(p);

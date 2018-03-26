@@ -36,7 +36,7 @@ export class Pirate {
     }
 
     allowMove() {
-        return this.waitLoop == 0;
+        return this.waitLoop == 0 && this.isDead == false;
     }
 
     nextLoop() {
@@ -67,6 +67,10 @@ export class Pirate {
 
     getStatusName() {
         var n = (this.ID + 1);
+        if (this.isDead && this.player.canBeResurected(this)) {
+            return 'Воскресить #' + n
+        }
+
         if (this.isDead) {
             return 'Умер #' + n
         }
@@ -76,6 +80,10 @@ export class Pirate {
         if (this.waitLoop > 0) {
             return 'Пират #' + n + ' (L'+this.waitLoop+')'; 
         }
+        if (this.player.isMoving(this)) {   
+            return 'Пират #' + n + '(Ход)';
+        }
+
         return 'Пират #' + n;
     }
 
@@ -88,4 +96,10 @@ export class Pirate {
         this.setXY(-2, -2);
         this.element.style.display = 'none';
     }
+
+    setLive(x, y) {
+        this.isDead = true;
+        this.setXY(x, y);
+        this.element.style.display = 'block';
+    }        
 }

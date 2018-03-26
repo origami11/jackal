@@ -14,7 +14,10 @@ export class Player {
         this.activeElement = 0;
         this.status = new Listener();
         this.pirates = [new Pirate(x, y, color, 0), new Pirate(x, y, color, 1), new Pirate(x, y, color, 2)];
-        this.pirates.forEach(p => p.pID = id);
+        this.pirates.forEach(p => {
+            p.pID = id
+            p.player = this;
+        });
 
         this.ship = new Ship(x, y, color);
     }
@@ -30,6 +33,14 @@ export class Player {
                 this.pirates.forEach(p => p.nextLoop());
             }
         }
+    }
+
+    canBeResurected(pirate) {
+        return this.pirate.find(p => p.card && p.card.image == 'girl');
+    }
+
+    isMoving(pirate) {
+        return pirate.id == this.activeElement;
     }
 
     setActiveElement(n) {

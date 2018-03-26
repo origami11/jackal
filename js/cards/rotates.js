@@ -7,12 +7,14 @@ export class RotateCard extends Card {
         this.waitMoves = n;
     }    
 
-    firstMove(pirate) {
+    enterCard(pirate) {
         pirate.waitMoves = this.waitMoves
     }
 
     updatePos(pirate) {
-        pirate.waitMoves -= 1;
+        if (pirate.waitMoves > 0) {
+            pirate.waitMoves -= 1;
+        }
 
         super.updatePos(pirate);
     }

@@ -16,6 +16,24 @@ import { Empty1, Empty2, Empty3, Empty4 } from './cards/empty.js';
 import { Gold1, Gold2, Gold3, Gold4, Gold5 } from './cards/golds.js';
 import { Ice, Trap, Alligator, Balloon, Cannon, Default, Girl,  Plane, Rum, Horse,  Fortress, Cannibal } from './cards/specials.js';
 
+var gameMap = [
+    '--ooooooooo--',
+    '-oXXXXXXXXXo-',
+    'oXXXXXXXXXXXo',
+    'oXXXXXXXXXXXo',
+    'oXXXXXXXXXXXo',
+    'oXXXXXXXXXXXo',
+    'oXXXXXXXXXXXo',
+    'oXXXXXXXXXXXo',
+    'oXXXXXXXXXXXo',
+    'oXXXXXXXXXXXo',
+    'oXXXXXXXXXXXo',
+    '-oXXXXXXXXXo-',
+    '--ooooooooo--'
+];
+
+console.log(gameMap.length);
+
 
 function deckFromList(list) {
     var cardsMap = {
@@ -97,7 +115,7 @@ class GameBoard {
         this.render();
 
         var player = this.getActivePlayer();
-        this.showMoves(player.getActiveElement(), this.lastPos);
+        this.showMoves(player, player.getActiveElement(), this.lastPos);
         this.players.forEach(p => {
             p.setActive(p == player);
         });
@@ -133,7 +151,7 @@ class GameBoard {
         };
     }
 
-    allowMoveToCard(pirate, current, next, lastPos, x, y) {
+    allowMoveToCard(player, pirate, current, next, lastPos, x, y) {
         // Пират может передвигаться на карту 1. У него нет золота 2. Карта открыта
         let canMoveTo = next && (next.isOpen || pirate.goldCount == 0);       
         // Пират может передвигаться на карту если на ней стоит пират и у текущего пирата нет монеты или это специальная клетка                
@@ -147,7 +165,7 @@ class GameBoard {
                 canMoveTo; // И на клетку разрешено ходить
         } else 
         // Передвигаемся с корабля
-        if (this.nextMove(pirate, x, y)) {
+        if (player.pirateOnShip(pirate) && this.nextMove(pirate, x, y)) {
             return canMoveTo;
         }
         // Передвигаемся по воде
@@ -156,13 +174,21 @@ class GameBoard {
     }
 
     allowMoveToShip(p, pirate, current, lastPos, x, y) {
+        // Передвигаемся на корабль
         return p.ship.x == x && p.ship.y == y && 
             ((Math.abs(pirate.x - p.ship.x) <= 1 && Math.abs(pirate.y - p.ship.y) <= 1) || current.image == 'balloon' || (current && current.nextMove(pirate, x, y, lastPos))) && 
             (pirate.x != p.ship.x || pirate.y != p.ship.y);
     }
 
     allowMoveToOcean(pirate, current, lastPos, x, y) {
-        return current && current.allowToOcean && current.nextMove(pirate, x, y, lastPos);
+        // Пират на острове
+        if (current) {
+            return current.allowToOcean && current.nextMove(pirate, x, y, lastPos);
+        }
+        // Пират вне острова
+        var sx = x + 1;
+        var sy = y + 1;
+        return (Math.abs(pirate.x - x) <= 1 && Math.abs(pirate.y - y) <= 1) && sx >= 0 && sy >= 0 && sx < gameMap.length && sy < gameMap[sx].length && gameMap[sx].charAt(sy) == 'o';
     }
 
     applyUserStep(x, y) {
@@ -172,6 +198,7 @@ class GameBoard {
         var player = this.getActivePlayer();
 
         if (player.moveShip) {
+            // Добавить условие встречи корабля и пирата
             if (player.setShipXY(x, y)) {
                 player.setActive(false);
                 this.nextPlayer();
@@ -191,9 +218,9 @@ class GameBoard {
             return;
         }
 
-        var current = this.getCard(pirate.x, pirate.y)
+        var current = this.getCard(pirate.x, pirate.y);
         // Передвижение на другую клетку
-        if (this.allowMoveToCard(pirate, current, next, this.lastPos, x, y)) {
+        if (this.allowMoveToCard(player, pirate, current, next, this.lastPos, x, y)) {
 
             next.flip();
             this.lastPos.push({x: pirate.x, y: pirate.y});
@@ -249,6 +276,7 @@ class GameBoard {
 
             this.updateMove(this.lastPos);
         }  else 
+        // Добавить встречу с кораблем врага и друга            
         // Передвижение с клетки на корабль (только если пират рядом), но не на карабле
         if (this.allowMoveToShip(player, pirate, current, this.lastPos, x, y)) { 
 
@@ -260,6 +288,7 @@ class GameBoard {
                 y: y
             }, true);
 
+            // shipgold
             player.ship.setGoldCount(player.ship.goldCount + pirate.goldCount);
 
             sendMessage('setgold', {
@@ -299,20 +328,20 @@ class GameBoard {
     updateMove(lastPos) {
         var player = this.getActivePlayer();
         player.setActive(true);
-        this.showMoves(player.getActiveElement(), lastPos);
+        this.showMoves(player, player.getActiveElement(), lastPos);
     }
 
     getActivePlayer() {
         return this.players[this.activePlayer];
     }
 
-    showMoves(pirate, lastPos) {
+    showMoves(player, pirate, lastPos) {
         var card = this.getCard(pirate.x, pirate.y);
         for(var x = 0; x < this.width; x++) {
             for(var y = 0; y < this.height; y++) {
                 var next = this.getCard(x, y);
                 if (next) {
-                    next.setActive(!pirate.isDead && pirate.allowMove() && this.allowMoveToCard(pirate, card, next, lastPos, x, y), pirate.color);
+                    next.setActive(!pirate.isDead && pirate.allowMove() && this.allowMoveToCard(player, pirate, card, next, lastPos, x, y), pirate.color);
                 }
             }
         }
@@ -384,7 +413,7 @@ class GameBoard {
         player.moveShip = false;
         player.setActiveElement(i);
 
-        this.showMoves(player.getActiveElement(), []);
+        this.showMoves(player, player.getActiveElement(), []);
     }
 
     switchShip() {
@@ -408,7 +437,7 @@ class GameBoard {
                 p.setGoldCount(0);
         }
     
-        this.showMoves(p);
+        this.showMoves(player, p, []);
     }
 
     render(id) {
@@ -504,6 +533,24 @@ class GameBoard {
 }
 
 
+var isRecord = false;
+var steps = [];
+window.startRecord = function () {
+    isRecord = true;
+    steps = [];
+}
+window.stopRecord = function () {
+    isRecord = false;
+    localStorage.setItem('game', JSON.stringify(steps));
+}
+window.playRecord = function () {
+    var n = JSON.parse(localStorage.getItem('game'));
+            
+    if (n) {
+        n.forEach(message => socket.send(message));
+    }
+}
+
 class FakeWebSocket {
     constructor(url) {
         this.onopen = null;
@@ -522,8 +569,11 @@ class FakeWebSocket {
         this.onmessage({data: message});
     }
 
-    send(message) {
+    send(message) {        
         console.log(JSON.parse(message));
+        if (isRecord) {
+            steps.push(message);
+        }
         this.onmessage({data: message});
     }
 }

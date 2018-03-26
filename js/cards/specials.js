@@ -9,6 +9,7 @@ export class Ice extends Card {
     nextMove(pirate, x, y, lastPos) {
         var i = lastPos.length - 1;
         var last = lastPos[i];
+        var prev = last;
 
         while (i >= 0 && last.card && last.card.image == 'ice') {
             last = lastPos[i];
@@ -17,8 +18,8 @@ export class Ice extends Card {
         if (last.card && (last.card.image == 'horse' || last.card.image == 'plane')) {
             return lastPos.card.nextMove(pirate, x, y, lastPos);
         }
-        var nx = pirate.x + (this.x - last.x);
-        var ny = pirate.y + (this.y - last.y);
+        var nx = pirate.x + (this.x - prev.x);
+        var ny = pirate.y + (this.y - prev.y);
         return nx == x && ny == y;
     }
 }

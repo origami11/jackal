@@ -36,7 +36,7 @@ export class Player {
     }
 
     canBeResurected(pirate) {
-        return this.pirate.find(p => p.card && p.card.image == 'girl');
+        return this.pirates.find(p => p.card && p.card.image == 'girl');
     }
 
     isMoving(pirate) {

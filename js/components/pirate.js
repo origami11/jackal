@@ -98,7 +98,7 @@ export class Pirate {
     }
 
     setLive(x, y) {
-        this.isDead = true;
+        this.isDead = false;
         this.setXY(x, y);
         this.element.style.display = 'block';
     }        

@@ -4,6 +4,7 @@ export class Ice extends Card {
     constructor(rotN) { 
         super('ice', rotN); 
         this.repeatMove = true;
+        this.allowToOcean = true;
     }    
 
     nextMove(pirate, x, y, lastPos) {

@@ -12,12 +12,12 @@ export class Ice extends Card {
         var last = lastPos[i];
         var prev = last;
 
-        while (i >= 0 && last.card && last.card.image == 'ice') {
+        while (i >= 0 && last.card && last.card.image == 'ice')     {
             last = lastPos[i];
             i--;
         }
         if (last.card && (last.card.image == 'horse' || last.card.image == 'plane')) {
-            return lastPos.card.nextMove(pirate, x, y, lastPos);
+            return last.card.nextMove(pirate, x, y, lastPos);
         }
         var nx = pirate.x + (this.x - prev.x);
         var ny = pirate.y + (this.y - prev.y);
@@ -39,7 +39,7 @@ export class Trap extends Card {
         var friends = this.getFriends(pirate);
         if (friends.length > 0) {
             friends.forEach(p => {
-                p.waitLoop = 0
+                p.waitLoop = 0;
             });
             this.pirates = this.pirates.filter(p => friends.indexOf(p) >= 0);
         } else {

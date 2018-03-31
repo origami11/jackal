@@ -8,6 +8,7 @@ export class Pirate {
         this.waitMoves = 0;
         this.waitLoop = 0;
         this.pID = 0; // Родительский ID
+        this.player = null;
 
         this.isDead = false;
         this.ID = id;
@@ -94,7 +95,7 @@ export class Pirate {
     }
 
     isFriend(p) {
-        return this.pID = p.pID;
+        return this.player.id == p.player.id || this.player.friends.indexOf(p.player) >= 0;
     }
 
     setDead() {

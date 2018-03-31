@@ -289,7 +289,7 @@ class GameBoard {
             return this.nextLoop(true);
         } else
         // Передвижение на воду 
-        if (this.allowMoveToOcean(pirate, current, this.lastPost, x, y)) {
+        if (this.allowMoveToOcean(pirate, current, this.lastPos, x, y)) {
             console.log('ocean');
             sendMessage('setxy', {
                 player: player.ID, 

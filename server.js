@@ -3,18 +3,20 @@ const http = require('http')
 const url = require('url');
 const path = require('path');
 const fs = require('fs');
+var parseArgs = require('minimist');
 
 const { makeRandomDeck } = require('./lib/deck.js');
 
 const port = 3000;
 
 class Game {
-    constructor(id) {
+    constructor(id, players) {
         this.id = id;
         this.width = 11;
         this.height = 11;        
 
         this.list = [];
+        this.players = players;
 
         this.first = null;
         this.second = null;
@@ -64,14 +66,17 @@ class Game {
     }
 }
 
-var args = process.argv, gameid = 0;;
-if (args.length >= 3) {
-    gameid = args[2];
-} else {
-    gameid = new Date().getTime().toString(16)
-}
 
-var game = new Game(gameid);
+var args = parseArgs(process.argv.slice(2), {
+    default: {
+        gameid: new Date().getTime().toString(16),
+        players: 2
+    }
+})
+
+console.log(args);
+
+var game = new Game(args.gameid, args.players);
 var requestCounter = 0;
 
 const WebSocket = require('ws');

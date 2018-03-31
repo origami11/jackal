@@ -14,17 +14,21 @@ class Game {
         this.width = 11;
         this.height = 11;        
 
-        this.deck = makeRandomDeck(this.width, this.height);
         this.list = [];
 
         this.first = null;
         this.second = null;
 
         this.recFile = 'records/'+this.id+'.txt';
+        var deckFile = 'records/deck'+this.id+'.json';
 
         if (fs.existsSync(this.recFile)) {
             this.list = fs.readFileSync(this.recFile, 'utf-8').split('\n').filter(x => x.length > 0); 
-            console.log(this.list);
+            this.deck = JSON.parse(fs.readFileSync(deckFile, 'utf-8')); 
+        } else {
+            this.deck = makeRandomDeck(this.width, this.height);
+            fs.writeFileSync(deckFile, JSON.stringify(this.deck)); 
+            this.list = [];
         }
     }
 

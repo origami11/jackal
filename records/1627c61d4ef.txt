@@ -1,2 +1,0 @@
-{"action":"step","data":{"player":0,"x":0,"y":5},"target":"other"}
-{"action":"step","data":{"player":0,"x":1,"y":5},"target":"other"}

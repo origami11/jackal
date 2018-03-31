@@ -125,6 +125,9 @@ class GameBoard {
     }
 
     isActivePlayer(player) {
+        if (this.count == 3) {
+            return (this.id == 1 && [1, 3].indexOf(player) >= 0) || (this.id == 2 && player == 0) || (this.id == 3 && player == 2);
+        }
         if (this.count == 2) {
             return this.id == 1 && [1, 3].indexOf(player) >= 0 || this.id == 2 && [0, 2].indexOf(player) >= 0;
         }

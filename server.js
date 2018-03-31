@@ -10,19 +10,18 @@ const { makeRandomDeck } = require('./lib/deck.js');
 const port = 3000;
 
 class Game {
-    constructor(id, players) {
+    constructor(id, num) {
         this.id = id;
         this.width = 11;
         this.height = 11;        
 
         this.list = [];
-        this.players = players;
-
-        this.first = null;
-        this.second = null;
+        this.numPlayers = num;
 
         this.recFile = 'records/'+this.id+'.txt';
         var deckFile = 'records/deck'+this.id+'.json';
+
+        this.players = [null, null, null, null];
 
         if (fs.existsSync(this.recFile)) {
             this.list = fs.readFileSync(this.recFile, 'utf-8').split('\n').filter(x => x.length > 0); 
@@ -35,24 +34,29 @@ class Game {
     }
 
     setPlayer(ws) {
-        if (!this.first) {
-            this.first = ws
-        } else if (!this.second) {
-            this.second = ws
+        for(var i = 0; i < this.numPlayers; i++) {
+            if (this.players[i] == null) {
+                this.players[i] = ws;
+                break;
+            }
         }
     }
 
     clearPlayer(ws) {
-        if (this.first == ws) {
-            this.first = null;
-        }
-        if (this.second == ws) {
-            this.second = null;
+        for(var i = 0; i < this.numPlayers; i++) {
+            if (this.players[i] == ws) {
+                this.players[i] = null;
+            }
         }
     }
 
     canStart() {
-        return this.first && this.second;
+        for(var i = 0; i < this.numPlayers; i++) {
+            if (this.players[i] == null) {
+                return false;
+            }
+        }
+        return true;
     }
 
     addMessage(message) {
@@ -61,8 +65,9 @@ class Game {
     }
 
     start() {        
-        this.first.send(JSON.stringify({action: 'start', data: {id: 1, deck: this.deck, count: 2, messages: this.list}}));
-        this.second.send(JSON.stringify({action: 'start', data: {id: 2, deck: this.deck, count: 2, messages: this.list}}));
+        for(var i = 0; i < this.numPlayers; i++) {
+            this.players[i].send(JSON.stringify({action: 'start', data: {id: i+1, deck: this.deck, count: this.numPlayers, messages: this.list}}));
+        }
     }
 }
 
@@ -85,7 +90,9 @@ const wss = new WebSocket.Server({ port: 3001 });
 wss.on('connection', function connection(ws) {
     game.setPlayer(ws);
 
-    if (game.canStart()) {
+    var start = game.canStart(); 
+    console.log(start);
+    if (start) {
         game.start();
     }
 

@@ -88,7 +88,6 @@ class GameBoard {
             height: cellSize * (h + 2) + 'px'
         });
 
-
         this.grid = m('div', 'grid', {
             width: cellSize * w + 'px',
             height: cellSize * h + 'px',
@@ -108,9 +107,11 @@ class GameBoard {
             var y = Math.floor((event.clientY - this.element.offsetTop) / cellSize) - 1;
 
                         
-            if (this.isActivePlayer()) {
-                // this.applyUserStep(x, y);
-                sendMessage('step', {player: this.activePlayer, x: x, y: y});
+            var player = this.activePlayer;
+            if (this.isActivePlayer(player)) {
+                if (this.applyUserStep(x, y)) {
+                    sendMessage('step', {player: player, x: x, y: y}, 'other');
+                }
             }
         });
 
@@ -123,9 +124,9 @@ class GameBoard {
         });
     }
 
-    isActivePlayer() {
+    isActivePlayer(player) {
         if (this.count == 2) {
-            return this.id == 1 && [1, 3].indexOf(this.activePlayer) >= 0 || this.id == 2 && [0, 2].indexOf(this.activePlayer) >= 0;
+            return this.id == 1 && [1, 3].indexOf(player) >= 0 || this.id == 2 && [0, 2].indexOf(player) >= 0;
         }
         return true;
     }
@@ -200,18 +201,17 @@ class GameBoard {
             // Добавить условие встречи корабля и пирата
             if (player.setShipXY(x, y)) {
                 player.moveShip = false;
-                this.nextLoop(true);
+                return this.nextLoop(true);
             }
 
-            return;
+            return false;
         }
 
         var next = this.getCard(x, y);
         var pirate = player.getActiveElement();
 
-
         if (pirate.isDead || !pirate.allowMove()) {
-            return;
+            return false;
         }
 
         var current = this.getCard(pirate.x, pirate.y);
@@ -230,15 +230,15 @@ class GameBoard {
                             player: player.ID, 
                             pirate: pirate.ID, 
                             gold: 0 
-                        }, true);
-                        sendMessage('cardgold', {card: next.ID, gold: next.goldCount + 1}, true);
+                        }, 'self');
+                        sendMessage('cardgold', {card: next.ID, gold: next.goldCount + 1}, 'self');
                     }
                     sendMessage('setxy', {
                         player: player.ID,    
                         pirate: pirate.ID, 
                         x: player.ship.x, 
                         y: player.ship.y
-                    }, true);
+                    }, 'self');
                 });
             }
 
@@ -248,11 +248,11 @@ class GameBoard {
                     player: player.ID, 
                     pirate: pirate.ID, 
                     gold: 0 
-                }, true);
+                }, 'self');
                 sendMessage('die', {
                     player: player.ID, 
                     pirate: pirate.ID  
-                }, true);
+                }, 'self');
             } else {
                 next.updatePos(pirate);
 
@@ -261,10 +261,10 @@ class GameBoard {
                     pirate: pirate.ID, 
                     x: next.x, 
                     y: next.y
-                }, true);
+                }, 'self');
             }
 
-            this.nextLoop(!next.repeatMove);
+            return this.nextLoop(!next.repeatMove);
         }  else 
         // Добавить встречу с кораблем врага и друга            
         // Передвижение с клетки на корабль (только если пират рядом), но не на карабле
@@ -276,7 +276,7 @@ class GameBoard {
                 pirate: pirate.ID, 
                 x: x, 
                 y: y
-            }, true);
+            }, 'self');
 
             // shipgold
             player.ship.setGoldCount(player.ship.goldCount + pirate.goldCount);
@@ -285,8 +285,8 @@ class GameBoard {
                 player: player.ID, 
                 pirate: pirate.ID, 
                 gold: 0 
-            }, true);
-            this.nextLoop(true);
+            }, 'self');
+            return this.nextLoop(true);
         } else
         // Передвижение на воду 
         if (this.allowMoveToOcean(pirate, current, this.lastPost, x, y)) {
@@ -296,14 +296,16 @@ class GameBoard {
                 pirate: pirate.ID, 
                 x: x, 
                 y: y
-            }, true);
+            }, 'self');
             sendMessage('setgold', {
                 player: player.ID, 
                 pirate: pirate.ID, 
                 gold: 0 
-            }, true);
-            this.nextLoop(true);
+            }, 'self');
+            return this.nextLoop(true);
         }
+
+        return false;
     }
 
     nextLoop(nextPlayer) {
@@ -316,6 +318,7 @@ class GameBoard {
             player.setActive(true);    
         }
         this.showMoves(player, player.getActiveElement(), this.lastPos);
+        return true;
     }
 
     getActivePlayer() {
@@ -471,7 +474,7 @@ class GameBoard {
         actions.appendChild(actionBtn);
 
         actionBtn.addEventListener('click', () => {
-            sendMessage('gold', {player: this.activePlayer});
+            sendMessage('gold', {player: this.activePlayer}, 'all');
         });
 
         var pirateBtn = [];
@@ -479,7 +482,7 @@ class GameBoard {
             var p = m('button', 'select-pirate', {});
             p.textContent = 'Пират #' + (i + 1);
             p.addEventListener('click', () => {              
-                sendMessage('pirate', {player: this.activePlayer, pirate: i});
+                sendMessage('pirate', {player: this.activePlayer, pirate: i}, 'all');
             });
             actions.appendChild(p);
             pirateBtn.push(p);
@@ -488,7 +491,7 @@ class GameBoard {
         var sh = m('button', 'select-ship', {});
         sh.textContent = 'Корабль';
         sh.addEventListener('click', () => {
-            sendMessage('ship', {player: this.activePlayer});  
+            sendMessage('ship', {player: this.activePlayer}, 'all');  
         });
 
         actions.appendChild(sh);
@@ -507,7 +510,7 @@ class GameBoard {
             var player = this.getActivePlayer()
             var p = player.getActiveElement();
 
-            if (!this.isActivePlayer()) {
+            if (!this.isActivePlayer(this.activePlayer)) {
                 actions.style.display = 'none';
                 return;
             }
@@ -577,11 +580,18 @@ class FakeWebSocket {
     }
 }
 
-let g;
+let g = null;
 var actions = {
+    // Начинаем игру
     'start': (data) => {
-        var root = document.getElementById('root');
-        g = new GameBoard(11, 11, root, data.deck, data.id, data.count);
+        // Создаем игровое поле
+        if (!g) {
+            var root = document.getElementById('root');
+            g = new GameBoard(11, 11, root, data.deck, data.id, data.count);
+            // Воспроизводим ранее записанные действия
+            var list = data.messages;
+            list.forEach(m => processMessages({data: m}));
+        }
     },
     // Переключаемсся на корабль
     'ship': (data) => {
@@ -650,6 +660,7 @@ var actions = {
 
 function processMessages(event) {
     var msg = JSON.parse(event.data);
+    console.log(msg);
     var action = msg.action;        
     var data = msg.data;        
     if (actions.hasOwnProperty(action)) {
@@ -657,20 +668,20 @@ function processMessages(event) {
     }    
 }
 
-function sendMessage(name, data, local) {
-    var msg = JSON.stringify({action: name, data: data});
-    if (local) {
+function sendMessage(name, data, target = 'all') {
+    var msg = JSON.stringify({action: name, data: data, target: target});
+    if (target == 'self') {
         processMessages({data: msg});
     } else {
         socket.send(msg);
     }
 }
 
-window.sendActive = function (name, props = {}, local = false) {
+window.sendActive = function (name, props = {}, tagret = 'all') {
     var player = g.getActivePlayer();
     var pirate = player.getActiveElement();
     props = Object.assign(props, {player: player.ID, pirate: pirate.ID});
-    sendMessage(name, props, local);
+    sendMessage(name, props, tagret);
 }
 
 window.msgList = Object.keys(actions);

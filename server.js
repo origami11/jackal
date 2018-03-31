@@ -9,14 +9,23 @@ const { makeRandomDeck } = require('./lib/deck.js');
 const port = 3000;
 
 class Game {
-    constructor() {
+    constructor(id) {
+        this.id = id;
         this.width = 11;
         this.height = 11;        
 
         this.deck = makeRandomDeck(this.width, this.height);
+        this.list = [];
 
         this.first = null;
         this.second = null;
+
+        this.recFile = 'records/'+this.id+'.txt';
+
+        if (fs.existsSync(this.recFile)) {
+            this.list = fs.readFileSync(this.recFile, 'utf-8').split('\n').filter(x => x.length > 0); 
+            console.log(this.list);
+        }
     }
 
     setPlayer(ws) {
@@ -40,13 +49,25 @@ class Game {
         return this.first && this.second;
     }
 
+    addMessage(message) {
+        this.list.push(message);
+        fs.appendFileSync(this.recFile, message + '\n');
+    }
+
     start() {        
-        this.first.send(JSON.stringify({action: 'start', data: {id: 1, deck: this.deck, count: 2}}));
-        this.second.send(JSON.stringify({action: 'start', data: {id: 2, deck: this.deck, count: 2}}));
+        this.first.send(JSON.stringify({action: 'start', data: {id: 1, deck: this.deck, count: 2, messages: this.list}}));
+        this.second.send(JSON.stringify({action: 'start', data: {id: 2, deck: this.deck, count: 2, messages: this.list}}));
     }
 }
 
-var game = new Game();
+var args = process.argv, gameid = 0;;
+if (args.length >= 3) {
+    gameid = args[2];
+} else {
+    gameid = new Date().getTime().toString(16)
+}
+
+var game = new Game(gameid);
 var requestCounter = 0;
 
 const WebSocket = require('ws');
@@ -60,10 +81,12 @@ wss.on('connection', function connection(ws) {
     }
 
     ws.on('message', function(message) {
-        console.log('broadcast', message);
+        game.addMessage(message)
+        var m = JSON.parse(message);
+        console.log('broadcast', message, m.target);        
         // Посылаю сообщение всем
         wss.clients.forEach(function (client) {
-            if (/*client !== ws &&*/ client.readyState === WebSocket.OPEN) {
+            if ((m.target == 'all' ? true : client !== ws) && client.readyState === WebSocket.OPEN) {
                 client.send(message);
             }
         });

@@ -583,45 +583,61 @@ var actions = {
         var root = document.getElementById('root');
         g = new GameBoard(11, 11, root, data.deck, data.id, data.count);
     },
+    // Переключаемсся на корабль
     'ship': (data) => {
         g.switchShip();
     },
+    // Сбрасывает состояние игрока
     'reset': (data) => {
         var p = g.players[data.player].pirates[data.pirate];
         p.resetMoves();
     },
+    // Взять или положить золото
     'gold': (data) => {
         g.switchGold();
     },
+    // Переключится на пирата pirate=ID, ID in [1, 2, 3]
     'pirate': (data) => {
         g.switchPirate(data.pirate);
     },
+    // Сделать ход на клетку с координатами
     'step': (data) => {
         g.applyUserStep(data.x, data.y);
     },
+    // Переместить пирата на клетку с кординатами x,y 
     'setxy': (data) => {
         var p = g.players[data.player].pirates[data.pirate];
         g.setXY(p, data.x, data.y);
     },
+    // Устанавливает количество золота у пирата gold
     'setgold': (data) => {
         var p = g.players[data.player].pirates[data.pirate];
         p.setGoldCount(data.gold);
     },
+    // Устанавливает количество золота у карты gold
     'cardgold': (data) => {
         g.deck[data.card].setGoldCount(data.gold);
     },
+    // Ход следующего игрока        
+    'next': (data) => {
+        g.nextLoop(true);
+    },
+    // Умираем и передаем ход
     'die': (data) => {
         var p = g.players[data.player].pirates[data.pirate];
         p.setDead();
         g.nextLoop(true);
     },
+    // Открыть карту
     'flipcard': (data) => {
         var card = g.getCard(data.x, data.y);
         card.flip();
     },
+    // Открыть все карты
     'flipall': (data) => {
         g.deck.forEach(card => card.flip());
     },
+    // Поменять карты местами
     'swapcard': (data) => {
         var from = data.from;
         var to = data.to;

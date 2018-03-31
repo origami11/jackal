@@ -49,7 +49,6 @@ class Game {
 var game = new Game();
 var requestCounter = 0;
 
-
 const WebSocket = require('ws');
 const wss = new WebSocket.Server({ port: 3001 });
 

@@ -128,12 +128,10 @@ export class Rum extends Card {
     }
 
     enterCard(pirate) {
-        console.log('enter', pirate);
         pirate.waitLoop = this.waitLoop;
     }
 
     updateLoop(pirate) {
-        console.log('update', pirate);
         if (pirate.waitLoop > 0) {
             pirate.waitLoop -= 1;  
         }

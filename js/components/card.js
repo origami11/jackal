@@ -72,6 +72,7 @@ export class Card {
     setXY(x, y) {
         this.x = x;
         this.y = y;
+        this.element.title = ['x: ' + x, 'y: ' +y].join(", ");
         this.element.style.left = (x * this.size) + 'px';
         this.element.style.top = (y * this.size) + 'px';
     }

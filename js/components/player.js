@@ -8,6 +8,7 @@ export class Player {
         this.step = 0;
         this.color = color;
         this.moveShip = false;
+        this.friends = [];
         this.ID = id;
         this.flag = false;
 
@@ -52,6 +53,19 @@ export class Player {
     }
 
     pirateOnShip(p) {
+        var selfShip = p.x == this.ship.x && p.y == this.ship.y;
+
+        for(var i = 0; i < this.friends.length; i++) {
+            var f = this.friends[i];
+            if (f.ship.x == p.x && f.ship.y == p.y) {
+                return true;
+            }
+        }
+
+        return selfShip;
+    }
+
+    pirateOnPlayerShip(p) {
         return p.x == this.ship.x && p.y == this.ship.y;
     }
 
@@ -64,8 +78,16 @@ export class Player {
         }
     }
 
+    getAllPirates() {
+        var list = this.pirates;
+        for(var i = 0; i < this.friends.length; i++) {
+            list = list.concat(this.friends[i].pirates);
+        }
+        return list;
+    }
+
     piratesOnShip() {
-       return this.pirates.reduce((s, p) => s + (this.pirateOnShip(p) ? 1 : 0), 0);
+       return this.getAllPirates().reduce((s, p) => s + (this.pirateOnPlayerShip(p) ? 1 : 0), 0);
     }
 
     hasPirateXY(x, y) {
@@ -74,11 +96,11 @@ export class Player {
 
     setShipXY(x, y) {        
         if (this.piratesOnShip() > 0 && this.testRanage(this.ship.x, this.ship.y, x, y)) {
-            this.pirates.forEach(p => {
-                if (this.pirateOnShip(p)) {
+            this.getAllPirates().forEach(p => {
+                if (this.pirateOnPlayerShip(p)) {
                     p.setXY(x, y);
                 }
-            })                        
+            });
             this.ship.setXY(x, y);
             return true;
         }

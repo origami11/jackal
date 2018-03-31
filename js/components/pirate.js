@@ -18,6 +18,7 @@ export class Pirate {
             zIndex: 1000 - (id + 1)
         });
 
+//        this.element.title = 'p' + this.ID;
         this.image = m('div', 'player-image', {
             background: color
         });
@@ -33,6 +34,11 @@ export class Pirate {
 
         this.setXY(x, y);
         this.setGoldCount(this.goldCount);
+    }
+
+    resetMoves() {
+        this.waitMoves = 0;
+        this.waitLoop = 0;
     }
 
     allowMove() {

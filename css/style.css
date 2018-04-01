@@ -19,9 +19,9 @@ html, body {
     position: relative;
     border-radius: 10px;
     user-select: none;
-    background: #65a642 url(../images/back-fix.jpg) no-repeat;
+    background: #7bd2d9 url(../images/back-fix.jpg) no-repeat;
     background-size: 100%;
-    
+    box-shadow: 0 0 30px 30px rgba(255, 255, 255, 0.2);
 }
 
 .container { 
@@ -109,7 +109,7 @@ html, body {
     top: 10px;
     left: 10px;
     z-index: 1000;
-    background: #263238;
+    background: #546E7A;
     padding: 10px;
     border-radius: 10px;
 }
@@ -168,4 +168,18 @@ html, body {
     z-index: 1001;
     top: 210px;
     left: 10px
+}
+
+#actions button:disabled {
+    color: #ccc;
+}
+
+#actions button {
+    border: none;
+    background: #90A4AE;
+    width: 70px;
+    padding: 5px 0;
+    margin: 2px 0;
+    color: #fff;
+    cursor:pointer;
 }

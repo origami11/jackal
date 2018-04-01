@@ -2,7 +2,7 @@ html, body {
     width: 100%;
     margin: 0;
     padding: 0;
-    background: #4FC3F7;        
+    background: #7bd2d9;        
     font-family: Tahoma;
 }
 
@@ -17,9 +17,11 @@ html, body {
 
 .playground {
     position: relative;
-    border: 1px solid #29B6F6;
-    border-radius: 4px;
+    border-radius: 10px;
     user-select: none;
+    background: #65a642 url(../images/back-fix.jpg) no-repeat;
+    background-size: 100%;
+    
 }
 
 .container { 
@@ -163,6 +165,7 @@ html, body {
 #actions {
     width: 70px;
     position: absolute;
+    z-index: 1001;
     top: 210px;
     left: 10px
 }

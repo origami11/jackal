@@ -223,7 +223,6 @@ class GameBoard {
         var current = this.getCard(pirate.x, pirate.y);
         // Передвижение на другую клетку
         if (this.allowMoveToCard(player, pirate, current, next, this.lastPos, x, y)) {
-//            console.log('card');
             next.flip();
             this.lastPos.push({x: pirate.x, y: pirate.y, card: current});
 
@@ -248,6 +247,7 @@ class GameBoard {
                 });
             }
 
+            // leaveCard(card) + enterCard(next)
             if (next.image == 'cannibal') {
                 pirate.resetMoves();
                 sendMessage('setgold', {
@@ -272,8 +272,6 @@ class GameBoard {
         // Добавить встречу с кораблем врага и друга            
         // Передвижение с клетки на корабль (только если пират рядом), но не на карабле
         if (this.allowMoveToShip(player, pirate, current, this.lastPos, x, y)) { 
-//            console.log('ship');
-//            this.setXY(pirate, player.ship.x, player.ship.y);
             sendMessage('setxy', {
                 player: player.ID, 
                 pirate: pirate.ID, 
@@ -281,7 +279,6 @@ class GameBoard {
                 y: y
             }, 'self');
 
-            // shipgold
             player.ship.setGoldCount(player.ship.goldCount + pirate.goldCount);
 
             sendMessage('setgold', {
@@ -293,7 +290,6 @@ class GameBoard {
         } else
         // Передвижение на воду 
         if (this.allowMoveToOcean(pirate, current, this.lastPos, x, y)) {
-//            console.log('ocean');
             sendMessage('setxy', {
                 player: player.ID, 
                 pirate: pirate.ID, 
@@ -575,7 +571,7 @@ class FakeWebSocket {
     }
 
     send(message) {        
-        console.log(JSON.parse(message));
+        //console.log(JSON.parse(message));
         if (isRecord) {
             steps.push(message);
         }
@@ -663,7 +659,6 @@ var actions = {
 
 function processMessages(event) {
     var msg = JSON.parse(event.data);
-    console.log(msg);
     var action = msg.action;        
     var data = msg.data;        
     if (actions.hasOwnProperty(action)) {

@@ -53,6 +53,14 @@ export class Trap extends Card {
         pirate.waitloop = 0;
         this.pirates = this.pirates.filter(p => p != pirate)        
     }
+
+    nextMove(pirate, x, y, lastPos) {
+        if (pirate.waitLoop == 0) {
+            super.nextMove(pirate, x, y, lastPos);
+        } else {
+            return pirate.x == x && pirate.y == y;
+        }
+    }
 }
 
 export class Alligator extends Card {
@@ -178,7 +186,6 @@ export class Fortress extends Card {
     } 
 
     enterCard(pirate) {
-        console.log(this.pirates);
         var friends = this.getFriends(pirate);
         if (friends.length > 0 || this.pirates.length == 0) {
             this.pirates.push(pirate);

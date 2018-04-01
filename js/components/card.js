@@ -7,8 +7,11 @@ export class Card {
         this.size = cellSize;
         this.isOpen = false;
         this.repeatMove = false;
+
+        this.allowDropGold = true;
         this.allowWithGold = true;
         this.allowWithPirates = false;
+
         this.allowToOcean = false;
         this.image = image;
 
@@ -69,6 +72,23 @@ export class Card {
         this.gold.style.display = (this.goldCount == 0 || (debugGold ? false : this.isOpen == false)) ? 'none' : 'block';
     }
 
+    addGold(lastPos) {
+        if (this.allowDropGold) {
+            this.setGoldCount(this.goldCount + 1);
+        } else {
+            var i = lastPos.length - 1;
+            var last = lastPos[i];
+            while(i >= 0 && last.card) {
+                if (last.card.allowDropGold) {
+                    last.card.setGoldCount(last.card.goldCount + 1);
+                    break;
+                }
+                i--;
+                last = lastPos[i];
+            }
+        }
+    }
+
     setXY(x, y) {
         this.x = x;
         this.y = y;
@@ -104,7 +124,7 @@ export class Card {
         } else {
             this.element.classList.remove('active');
         }
-    }
+    }    
 
     flip() {
         if (!this.isOpen) {

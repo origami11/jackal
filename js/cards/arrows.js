@@ -30,6 +30,7 @@ class ArrowCard extends Card {
     constructor(image, rotN) { 
         super(image, rotN);  
         this.repeatMove = true;
+        this.allowDropGold = false;
         this.allowToOcean = true;
     } 
 }

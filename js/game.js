@@ -138,7 +138,7 @@ class GameBoard {
     }
 
     getEnemyPlayers(player) {
-        return ([1, 3].indexOf(player) >= 0) ? [0, 2] : [1, 3];
+        return ([1, 3].indexOf(player) >= 0) ? [0, 2] : [1, 3]; // проверить id и friends
     }
 
     hasEnemyPirates(card) {
@@ -167,7 +167,7 @@ class GameBoard {
         let canAttack = next ? next.allowWithPirates || (this.hasEnemyPirates(next) ? pirate.goldCount == 0 : true) : true;
 
         // Передвигаемся с суши
-        if (current) {            
+        if (current) {
             return current.nextMove(pirate, x, y, lastPos) && // Может ходить с текущей клетки на указанную позицию
                 (pirate.goldCount == 0 || current.allowWithGold) && // Пират может передвигаться на карту если на нее можно ходит с золотом
                 canAttack &&
@@ -223,7 +223,7 @@ class GameBoard {
         var current = this.getCard(pirate.x, pirate.y);
         // Передвижение на другую клетку
         if (this.allowMoveToCard(player, pirate, current, next, this.lastPos, x, y)) {
-            console.log('card');
+//            console.log('card');
             next.flip();
             this.lastPos.push({x: pirate.x, y: pirate.y, card: current});
 
@@ -272,7 +272,7 @@ class GameBoard {
         // Добавить встречу с кораблем врага и друга            
         // Передвижение с клетки на корабль (только если пират рядом), но не на карабле
         if (this.allowMoveToShip(player, pirate, current, this.lastPos, x, y)) { 
-            console.log('ship');
+//            console.log('ship');
 //            this.setXY(pirate, player.ship.x, player.ship.y);
             sendMessage('setxy', {
                 player: player.ID, 
@@ -293,7 +293,7 @@ class GameBoard {
         } else
         // Передвижение на воду 
         if (this.allowMoveToOcean(pirate, current, this.lastPos, x, y)) {
-            console.log('ocean');
+//            console.log('ocean');
             sendMessage('setxy', {
                 player: player.ID, 
                 pirate: pirate.ID, 
@@ -436,7 +436,7 @@ class GameBoard {
             current.setGoldCount(current.goldCount - 1);
             p.setGoldCount(1);
         } else if (current && p.goldCount > 0) {
-            current.setGoldCount(current.goldCount + 1);
+            current.addGold(this.lastPos);
             p.setGoldCount(0);
         } else if (p.goldCount > 0 && player.pirateOnShip(p)) {
             player.ship.addGold();

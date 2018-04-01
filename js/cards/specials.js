@@ -5,6 +5,7 @@ export class Ice extends Card {
         super('ice', rotN); 
         this.repeatMove = true;
         this.allowToOcean = true;
+        this.allowDropGold = false;
     }    
 
     nextMove(pirate, x, y, lastPos) {
@@ -13,8 +14,8 @@ export class Ice extends Card {
         var prev = last;
 
         while (i >= 0 && last.card && last.card.image == 'ice')     {
-            last = lastPos[i];
             i--;
+            last = lastPos[i];
         }
         if (last.card && (last.card.image == 'horse' || last.card.image == 'plane')) {
             return last.card.nextMove(pirate, x, y, lastPos);
@@ -58,6 +59,7 @@ export class Alligator extends Card {
     constructor(rotN) { 
         super('alligator', rotN); 
         this.repeatMove = true;
+        this.allowDropGold = false;
     }    
 
     nextMove(pirate, x, y, lastPos) {

@@ -2,7 +2,7 @@ import { m } from '../utils.js';
 import { cellSize } from '../options.js';
 
 export class Pirate {
-    constructor(x, y, color, id) {   
+    constructor(x, y, color, id) {
         this.color = color; 
         this.goldCount = 0;
         this.waitMoves = 0;

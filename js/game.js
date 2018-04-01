@@ -77,8 +77,8 @@ class GameBoard {
         ];
 
         this.players[0].friends = [this.players[2]];
-        this.players[2].friends = [this.players[0]];
         this.players[1].friends = [this.players[3]];
+        this.players[2].friends = [this.players[0]];
         this.players[3].friends = [this.players[1]];
 
         this.setCardXY();
@@ -162,7 +162,7 @@ class GameBoard {
 
     allowMoveToCard(player, pirate, current, next, lastPos, x, y) {
         // Пират может передвигаться на карту 1. У него нет золота 2. Карта открыта
-        let canMoveTo = next && (next.isOpen || pirate.goldCount == 0);       
+        let canMoveTo = next && next.allowMove(pirate);
         // Пират может передвигаться на карту если на ней стоит пират и у текущего пирата нет монеты или это специальная клетка                
         let canAttack = next ? next.allowWithPirates || (this.hasEnemyPirates(next) ? pirate.goldCount == 0 : true) : true;
 
@@ -255,10 +255,7 @@ class GameBoard {
                     pirate: pirate.ID, 
                     gold: 0 
                 }, 'self');
-                sendMessage('die', {
-                    player: player.ID, 
-                    pirate: pirate.ID  
-                }, 'self');
+                pirate.setDead();
             } else {
                 next.updatePos(pirate);
 
@@ -568,7 +565,7 @@ class FakeWebSocket {
             this.deck = data;
             setTimeout(() => {
                 this.onopen(null);
-                this.serverSend(JSON.stringify({action: 'start', data: {id: 1, deck: this.deck, count: 1}}));
+                this.serverSend(JSON.stringify({action: 'start', data: {id: 1, deck: this.deck, count: 1, messages: []}}));
             }, 100);
         })
     }

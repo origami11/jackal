@@ -49,7 +49,9 @@ export class Trap extends Card {
     }
 
     leaveCard(pirate) {
-    }    
+        pirate.waitloop = 0;
+        this.pirates = this.pirates.filter(p => p != pirate)        
+    }
 }
 
 export class Alligator extends Card {
@@ -131,6 +133,10 @@ export class Rum extends Card {
         pirate.waitLoop = this.waitLoop;
     }
 
+    leaveCard(pirate) {
+        pirate.waitloop = 0;
+    }    
+
     updateLoop(pirate) {
         if (pirate.waitLoop > 0) {
             pirate.waitLoop -= 1;  
@@ -162,7 +168,31 @@ export class Fortress extends Card {
         super('fortress', rotN); 
         this.allowWithGold = false;
         this.allowWithPirates = true;
-    }    
+        this.pirates = [];
+    }   
+
+    getFriends(pirate) {
+        return this.pirates.filter(p => pirate.isFriend(p));
+    } 
+
+    enterCard(pirate) {
+        console.log(this.pirates);
+        var friends = this.getFriends(pirate);
+        if (friends.length > 0 || this.pirates.length == 0) {
+            this.pirates.push(pirate);
+        } else {
+            pirate.setDead();
+        }
+    }
+
+    leaveCard(pirate) {
+        this.pirates = this.pirates.filter(p => p != pirate);
+    }
+
+    allowMove(pirate) {
+        var friends = this.getFriends(pirate);        
+        return pirate.goldCount == 0 && (friends.length > 0 || this.pirates.length == 0);
+    }
 }
 
 export class Cannibal extends Card {

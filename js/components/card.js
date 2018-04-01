@@ -90,6 +90,10 @@ export class Card {
         return (Math.abs(pirate.x - x) <= 1 && Math.abs(pirate.y - y) <= 1) && (y != this.y || x != this.x);
     }
 
+    allowMove(pirate) {
+        return this.isOpen || pirate.goldCount == 0;
+    }
+
     updatePos(pirate) {
 //        pirate.setXY(this.x, this.y);
     }

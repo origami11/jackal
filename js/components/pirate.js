@@ -95,7 +95,7 @@ export class Pirate {
     }
 
     isFriend(p) {
-        return this.player.id == p.player.id || this.player.friends.indexOf(p.player) >= 0;
+        return this.player.ID == p.player.ID || this.player.friends.indexOf(p.player) >= 0;
     }
 
     setDead() {

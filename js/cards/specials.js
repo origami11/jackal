@@ -54,13 +54,13 @@ export class Trap extends Card {
         this.pirates = this.pirates.filter(p => p != pirate)        
     }
 
-    nextMove(pirate, x, y, lastPos) {
+    /*nextMove(pirate, x, y, lastPos) {
         if (pirate.waitLoop == 0) {
             super.nextMove(pirate, x, y, lastPos);
         } else {
             return pirate.x == x && pirate.y == y;
         }
-    }
+    }*/
 }
 
 export class Alligator extends Card {

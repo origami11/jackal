@@ -407,10 +407,7 @@ class GameBoard {
                 pirate.setLive(r.card.x, r.card.y);
 
                 // Переход хода при воскрешении пирата
-                player.setActive(false);
-                this.nextPlayer();
-                this.lastPos = [];            
-                this.updateMove(this.lastPos);
+                this.nextLoop(true);
             }                        
         } else if (player.pirates[i].allowMove()) {
             player.setActiveElement(i);

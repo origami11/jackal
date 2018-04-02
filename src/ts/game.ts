@@ -249,7 +249,7 @@ class GameBoard {
                 }, 'self');
                 pirate.setDead();
             } else {
-                next.updatePos(pirate);
+                next.nextStep(pirate);
 
                 sendMessage('setxy', {
                     player: player.ID, 

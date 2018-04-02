@@ -133,7 +133,49 @@ class Default extends Card {
 
 registerCard('default', Default);
 
-class Girl extends Card {
+
+class FortressCard extends Card {
+    private pirates: Array<any>;
+    constructor(image, rotN) { 
+        super(image, rotN); 
+        this.allowWithGold = false;
+        this.allowWithPirates = true;
+        this.pirates = [];
+    }   
+
+    getFriends(pirate) {
+        return this.pirates.filter(p => pirate.isFriend(p));
+    } 
+
+    enterCard(pirate) {
+        var friends = this.getFriends(pirate);
+        if (friends.length > 0 || this.pirates.length == 0) {
+            this.pirates.push(pirate);
+        } else {
+            pirate.setDead();
+        }
+    }
+
+    leaveCard(pirate) {
+        this.pirates = this.pirates.filter(p => p != pirate);
+    }
+
+    allowMove(pirate) {
+        var friends = this.getFriends(pirate);        
+        return pirate.goldCount == 0 && (friends.length > 0 || this.pirates.length == 0);
+    }
+}
+
+
+class Fortress extends FortressCard {
+    constructor(rotN) { 
+        super('fortress', rotN);
+    }    
+}
+
+registerCard('fortress', Fortress);
+
+class Girl extends FortressCard {
     constructor(rotN) { 
         super('girl', rotN); 
     }    
@@ -168,7 +210,7 @@ class Rum extends Card {
         pirate.waitloop = 0;
     }    
 
-    updateLoop(pirate) {
+    nextLoop(pirate) {
         if (pirate.waitLoop > 0) {
             pirate.waitLoop -= 1;  
         }
@@ -197,40 +239,6 @@ class Horse extends Card {
 }
 
 registerCard('horse', Horse);
-
-class Fortress extends Card {
-    private pirates: Array<any>;
-    constructor(rotN) { 
-        super('fortress', rotN); 
-        this.allowWithGold = false;
-        this.allowWithPirates = true;
-        this.pirates = [];
-    }   
-
-    getFriends(pirate) {
-        return this.pirates.filter(p => pirate.isFriend(p));
-    } 
-
-    enterCard(pirate) {
-        var friends = this.getFriends(pirate);
-        if (friends.length > 0 || this.pirates.length == 0) {
-            this.pirates.push(pirate);
-        } else {
-            pirate.setDead();
-        }
-    }
-
-    leaveCard(pirate) {
-        this.pirates = this.pirates.filter(p => p != pirate);
-    }
-
-    allowMove(pirate) {
-        var friends = this.getFriends(pirate);        
-        return pirate.goldCount == 0 && (friends.length > 0 || this.pirates.length == 0);
-    }
-}
-
-registerCard('fortress', Fortress);
 
 class Cannibal extends Card {
     constructor(rotN) { 

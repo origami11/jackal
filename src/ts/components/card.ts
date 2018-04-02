@@ -86,12 +86,14 @@ export class Card {
         this.card.style.transform = 'rotateZ('+angle+'deg)';
     }
 
+    /* Устанавливает значение золота на карте */
     setGoldCount(n) {
         this.goldCount = n;
         this.gold.textContent = n;
         this.gold.style.display = (this.goldCount == 0 || (debugGold ? false : this.isOpen == false)) ? 'none' : 'block';
     }
 
+    /* Сброс золота на карту */
     addGold(lastPos) {
         if (this.allowDropGold) {
             this.setGoldCount(this.goldCount + 1);
@@ -109,6 +111,7 @@ export class Card {
         }
     }
 
+    /* Назначение координат карте */
     setXY(x, y) {
         this.x = x;
         this.y = y;
@@ -117,27 +120,37 @@ export class Card {
         this.element.style.top = (y * this.size) + 'px';
     }
 
+    /* Возвращает список пиратов на карте */
+    getPirates() {
+    }
+
+    /* Действие с пиратом когда он переходит на карту */
     enterCard(pirate) {
     }
 
+    /* Действие с пиратом когда он покидает карту */
     leaveCard(pirate) {
     }
 
-    updateLoop(pirate) {
+    /* Действие на карте по завершении цикла игры */
+    nextLoop(pirate) {
+    }
+
+    /* Действие на карте при ходе на ней */
+    nextStep(pirate) {
     }
    
+    /* Проверяет возможность ходить пиратом с укзанной клетки на заданную */
     nextMove(pirate, x, y, lastPos) {
         return (Math.abs(pirate.x - x) <= 1 && Math.abs(pirate.y - y) <= 1) && (y != this.y || x != this.x);
     }
 
+    /* Проверяет возможность пирата ходить на данную клетку */
     allowMove(pirate) {
         return this.isOpen || pirate.goldCount == 0;
     }
 
-    updatePos(pirate) {
-//        pirate.setXY(this.x, this.y);
-    }
-
+    /* Подсвечивает карту (заданным цветом) */
     setActive(flag, color) {
         if (flag) {
             this.element.classList.add('active');
@@ -146,6 +159,7 @@ export class Card {
         }
     }    
 
+    /* Переворачивает карту */
     flip() {
         if (!this.isOpen) {
             this.isOpen = true;

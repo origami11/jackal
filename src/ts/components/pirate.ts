@@ -67,7 +67,7 @@ export class Pirate {
 
     nextLoop() {
         if (this.card) {
-            this.card.updateLoop(this);
+            this.card.nextLoop(this);
         }
     }
 

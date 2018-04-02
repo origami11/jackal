@@ -1,20 +1,12 @@
 ﻿//"use strict";
 import { m } from './utils.js';
-import { makeRandomDeck } from './game/deck.js';
 import { Listener } from './listener.js';
 
-import { Card } from './components/card.js';
+import { Card, createCard } from './components/card.js';
 import { Player } from './components/player.js';
-
 import { cellSize } from './options.js';
 
-import { Server } from './server.js';
-
-import { Arrow1, Arrow2, Arrow3, Arrow4, Arrow5, Arrow6, Arrow7 } from './cards/arrows.js';
-import { Rotate2n, Rotate3n, Rotate4n, Rotate5n } from './cards/rotates.js';
-import { Empty1, Empty2, Empty3, Empty4 } from './cards/empty.js';
-import { Gold1, Gold2, Gold3, Gold4, Gold5 } from './cards/golds.js';
-import { Ice, Trap, Alligator, Balloon, Cannon, Default, Girl,  Plane, Rum, Horse,  Fortress, Cannibal } from './cards/specials.js';
+import './cards/cardset.js';
 
 var gameMap = [
     '--ooooooooo--',
@@ -33,25 +25,8 @@ var gameMap = [
 ];
 
 function deckFromList(list) {
-    var cardsMap = {
-        'empty_01': Empty1, 'empty_02': Empty2, 'empty_03': Empty3, 'empty_04': Empty4, 
-        'arrow_01': Arrow1, 'arrow_02': Arrow2, 'arrow_03': Arrow3, 'arrow_04': Arrow4, 'arrow_05': Arrow5, 'arrow_06': Arrow6, 'arrow_07': Arrow7,  
-        'ice': Ice, 
-        'girl': Girl, 
-        'trap': Trap, 
-        'alligator': Alligator, 
-        'baloon': Balloon, 
-        'cannibal': Cannibal, 
-        'cannon': Cannon, 
-        'horse': Horse, 
-        'fortress': Fortress, 
-        'rum': Rum, 
-        'plane': Plane, 
-        'gold_01': Gold1, 'gold_02': Gold2, 'gold_03': Gold3, 'gold_04': Gold4, 'gold_05': Gold5,
-        'rotate_2n': Rotate2n, 'rotate_3n': Rotate3n, 'rotate_4n': Rotate4n, 'rotate_5n': Rotate5n 
-    };
     return list.map((item, i) => {
-        var card = new cardsMap[item[0]](item[1]);
+        var card = createCard(item[0], item[1]);
         card.ID = i;
         return card;
     });
@@ -537,26 +512,7 @@ class GameBoard {
     }
 }
 
-
-var isRecord = false;
-var steps = [];
-window.startRecord = function () {
-    isRecord = true;
-    steps = [];
-}
-window.stopRecord = function () {
-    isRecord = false;
-    localStorage.setItem('game', JSON.stringify(steps));
-}
-window.playRecord = function () {
-    var n = JSON.parse(localStorage.getItem('game'));
-            
-    if (n) {
-        n.forEach(message => socket.send(message));
-    }
-}
-
-let g = null;
+let g: GameBoard = null;
 var actions = {
     // Начинаем игру
     'start': (data) => {

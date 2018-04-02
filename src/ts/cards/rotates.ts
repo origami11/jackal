@@ -1,4 +1,4 @@
-import { Card } from '../components/card.js';
+import { Card, registerCard } from '../components/card.js';
 
 export class RotateCard extends Card {
     public waitMoves;
@@ -30,11 +30,13 @@ export class RotateCard extends Card {
 }
 
 
-export class Rotate2n extends RotateCard {
+class Rotate2n extends RotateCard {
     constructor(rotN) { 
         super('rotate_2n', rotN, 1);  
     }    
 }
+
+registerCard('rotate_2n', Rotate2n);
 
 export class Rotate3n extends RotateCard {
     constructor(rotN) { 
@@ -42,14 +44,20 @@ export class Rotate3n extends RotateCard {
     }    
 }
 
+registerCard('rotate_3n', Rotate3n);
+
 export class Rotate4n extends RotateCard {
     constructor(rotN) { 
         super('rotate_4n', rotN, 3);  
     }    
 }
 
+registerCard('rotate_4n', Rotate4n);
+
 export class Rotate5n extends RotateCard {
     constructor(rotN) { 
         super('rotate_5n', rotN, 4);  
     }    
 }
+
+registerCard('rotate_5n', Rotate5n);

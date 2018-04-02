@@ -49,6 +49,10 @@ function makeDeck(w, h, cards) {
         }
     });
 
+    if (count == sum) {
+        throw new Error('wrong card set');
+    }    
+
     return shuffle(deck);
 }
 

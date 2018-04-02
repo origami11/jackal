@@ -1,6 +1,23 @@
 import { m } from '../utils.js';
 import { cellSize, debugGold } from '../options.js';
 
+let factory = {};
+
+export function createCard(name, rotN) {
+    if (!factory.hasOwnProperty(name)) {
+        throw new Error(name + ' is not registered');
+    }
+    return new factory[name](rotN);
+}
+
+export function registerCard(name, fn) {
+    if (!factory.hasOwnProperty(name) && fn) {
+        factory[name] = fn;
+        return;
+    }
+    throw new Error(name + ' bad registering');
+}
+
 export class Card {    
     public goldCount = 0;
     public isOpen: boolean = false;

@@ -8,8 +8,7 @@ export class Listener {
         this.list.push(fn);
     }
 
-    remove(fn) {
-        
+    remove(fn) {        
     }
 
     fire(...args) {

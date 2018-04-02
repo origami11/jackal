@@ -1,6 +1,6 @@
-import { Card } from '../components/card.js';
+import { Card, registerCard } from '../components/card.js';
 
-export class Ice extends Card {
+class Ice extends Card {
     constructor(rotN) { 
         super('ice', rotN); 
         this.repeatMove = true;
@@ -26,7 +26,9 @@ export class Ice extends Card {
     }
 }
 
-export class Trap extends Card {
+registerCard('ice', Ice);
+
+class Trap extends Card {
     private pirates: Array<any>;
 
     constructor(rotN) { 
@@ -65,7 +67,9 @@ export class Trap extends Card {
     }*/
 }
 
-export class Alligator extends Card {
+registerCard('trap', Trap);
+
+class Alligator extends Card {
     constructor(rotN) { 
         super('alligator', rotN); 
         this.repeatMove = true;
@@ -78,7 +82,9 @@ export class Alligator extends Card {
     }
 }
 
-export class Balloon extends Card {
+registerCard('alligator', Alligator);
+
+class Balloon extends Card {
     constructor(rotN) { 
         super('balloon', rotN);
         this.repeatMove = true; 
@@ -90,6 +96,8 @@ export class Balloon extends Card {
         return false;
     }
 }
+
+registerCard('balloon', Balloon);
 
 export class Cannon extends Card {
     constructor(rotN) {
@@ -115,17 +123,25 @@ export class Cannon extends Card {
     }    
 }
 
-export class Default extends Card {
+
+registerCard('cannon', Cannon);
+
+
+class Default extends Card {
     constructor(rotN) { super('default', rotN); }    
 }
 
-export class Girl extends Card {
+registerCard('default', Default);
+
+class Girl extends Card {
     constructor(rotN) { 
         super('girl', rotN); 
     }    
 }
 
-export class Plane extends Card {
+registerCard('girl', Girl);
+
+class Plane extends Card {
     constructor(rotN) { 
         super('plane', rotN); 
     }    
@@ -135,7 +151,9 @@ export class Plane extends Card {
     }
 }
 
-export class Rum extends Card {
+registerCard('plane', Plane);
+
+class Rum extends Card {
     public waitLoop;
     constructor(rotN) { 
         super('rum', rotN); 
@@ -157,7 +175,9 @@ export class Rum extends Card {
     }
 }
 
-export class Horse extends Card {
+registerCard('rum', Rum);
+
+class Horse extends Card {
     constructor(rotN) { 
         super('horse', rotN); 
         this.repeatMove = true;
@@ -176,7 +196,9 @@ export class Horse extends Card {
     }
 }
 
-export class Fortress extends Card {
+registerCard('horse', Horse);
+
+class Fortress extends Card {
     private pirates: Array<any>;
     constructor(rotN) { 
         super('fortress', rotN); 
@@ -208,8 +230,12 @@ export class Fortress extends Card {
     }
 }
 
-export class Cannibal extends Card {
+registerCard('fortress', Fortress);
+
+class Cannibal extends Card {
     constructor(rotN) { 
         super('cannibal', rotN); 
     }    
 }
+
+registerCard('cannibal', Cannibal);

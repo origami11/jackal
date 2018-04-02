@@ -1,4 +1,4 @@
-import { Card } from '../components/card.js';
+import { Card, registerCard } from '../components/card.js';
 
 var steps = [
     [ 1,  0],
@@ -35,7 +35,7 @@ class ArrowCard extends Card {
     } 
 }
 
-export class Arrow1 extends ArrowCard {
+class Arrow1 extends ArrowCard {
     constructor(rotN) { 
         super('arrow_01', rotN);  
     } 
@@ -46,7 +46,9 @@ export class Arrow1 extends ArrowCard {
     }   
 }
 
-export class Arrow2 extends ArrowCard {
+registerCard('arrow_01', Arrow1);
+
+class Arrow2 extends ArrowCard {
     constructor(rotN) { 
         super('arrow_02', rotN);  
         this.repeatMove = true;
@@ -58,7 +60,9 @@ export class Arrow2 extends ArrowCard {
     }    
 }
 
-export class Arrow3 extends ArrowCard {
+registerCard('arrow_02', Arrow2);
+
+class Arrow3 extends ArrowCard {
     constructor(rotN) { 
         super('arrow_03', rotN);  
         this.repeatMove = true;
@@ -72,7 +76,9 @@ export class Arrow3 extends ArrowCard {
     }   
 }
 
-export class Arrow4 extends ArrowCard {
+registerCard('arrow_03', Arrow3);
+
+class Arrow4 extends ArrowCard {
     constructor(rotN) { 
         super('arrow_04', rotN);  
     }
@@ -84,6 +90,8 @@ export class Arrow4 extends ArrowCard {
         return [r0, r1].some(r => offsetEq(pirate, r, x, y));
     }    
 }
+
+registerCard('arrow_04', Arrow4);
 
 export class Arrow5 extends ArrowCard {
     constructor(rotN) { 
@@ -98,6 +106,8 @@ export class Arrow5 extends ArrowCard {
         return [r0, r1, r2].some(r => offsetEq(pirate, r, x, y));
     }
 }
+
+registerCard('arrow_05', Arrow5);
 
 export class Arrow6 extends ArrowCard {
     constructor(rotN) { 
@@ -114,6 +124,8 @@ export class Arrow6 extends ArrowCard {
     }
 }
 
+registerCard('arrow_06', Arrow6);
+
 export class Arrow7 extends ArrowCard {
     constructor(rotN) { 
         super('arrow_07', rotN);  
@@ -128,3 +140,5 @@ export class Arrow7 extends ArrowCard {
         return [r0, r1, r2, r3].some(r => offsetEq(pirate, r, x, y));
     }    
 }
+
+registerCard('arrow_07', Arrow7);

@@ -27,6 +27,8 @@ export class Ice extends Card {
 }
 
 export class Trap extends Card {
+    private pirates: Array<any>;
+
     constructor(rotN) { 
         super('trap', rotN); 
         this.pirates = [];
@@ -134,6 +136,7 @@ export class Plane extends Card {
 }
 
 export class Rum extends Card {
+    public waitLoop;
     constructor(rotN) { 
         super('rum', rotN); 
         this.waitLoop = 2;
@@ -174,6 +177,7 @@ export class Horse extends Card {
 }
 
 export class Fortress extends Card {
+    private pirates: Array<any>;
     constructor(rotN) { 
         super('fortress', rotN); 
         this.allowWithGold = false;

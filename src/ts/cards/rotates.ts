@@ -1,6 +1,7 @@
 import { Card } from '../components/card.js';
 
 export class RotateCard extends Card {
+    public waitMoves;
     constructor(image, rotN, n) { 
         super(image, rotN);  
         this.allowWithPirates = true;
@@ -21,7 +22,7 @@ export class RotateCard extends Card {
 
     nextMove(pirate, x, y, lastPos) {
         if (pirate.waitMoves == 0) {
-            return super.nextMove(pirate, x, y);
+            return super.nextMove(pirate, x, y, lastPos);
         } else {
             return pirate.x == x && pirate.y == y;
         }

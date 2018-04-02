@@ -118,13 +118,13 @@ const requestHandler = (request, response) => {
 
     // Обработка статических ресурсов игры
     var fsPath, contentType;
-    var content = {'.js': 'application/javascript', '.css': 'text/css', '.png': 'image/png', '.ico': 'image/x-icon', '.html': 'text/html'};
+    var content = {'.js': 'application/javascript', '.css': 'text/css', '.png': 'image/png', '.ico': 'image/x-icon', '.html': 'text/html', '.jpg': 'image/jpg'};
     
     if (requestUrl.pathname === '/') {
-        fsPath = path.resolve(__dirname + '/index.html');
+        fsPath = path.resolve(__dirname + '/public/index.html');
         contentType = {'Content-Type': 'text/html'};
     } else {
-        fsPath = path.resolve(__dirname + requestUrl.pathname);
+        fsPath = path.resolve(__dirname + '/public/' + requestUrl.pathname);
         contentType = {'Content-Type': content[path.extname(requestUrl.pathname)]};
     }
 

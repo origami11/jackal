@@ -1,4 +1,5 @@
 export class Listener {
+    public list;
     constructor() {
         this.list = [];
     }

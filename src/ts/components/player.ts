@@ -4,10 +4,21 @@ import { Ship } from './ship.js';
 import { Pirate } from './pirate.js';
 
 export class Player {
+    public friends: Array<Player>;
+    public pirates: Array<Pirate>;
+    public step;
+    public color;
+    public ID;
+    public flag;
+    public activeElement;
+    public status: Listener; 
+    public ship: Ship;
+
+    public moveShip = false;
+
     constructor(x, y, color, id) {
         this.step = 0;
         this.color = color;
-        this.moveShip = false;
         this.friends = [];
         this.ID = id;
         this.flag = false;

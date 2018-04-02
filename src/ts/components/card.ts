@@ -2,21 +2,30 @@ import { m } from '../utils.js';
 import { cellSize, debugGold } from '../options.js';
 
 export class Card {    
+    public goldCount = 0;
+    public isOpen: boolean = false;
+    public allowDropGold: boolean = true;
+    public allowWithGold: boolean = true;
+    public allowWithPirates: boolean = false;        
+    public allowToOcean: boolean = false;
+    public repeatMove: boolean = false;
+
+    public size;
+    public x = 0;
+    public y = 0;
+    public n; /* Количество поворотов */
+    public image: string;
+    public ID;
+
+    public element: HTMLDivElement;
+    public card: HTMLDivElement;
+    public gold: HTMLDivElement;
+    
     constructor(image, rotN) {
         const dx = 1;
         this.size = cellSize;
-        this.isOpen = false;
-        this.repeatMove = false;
 
-        this.allowDropGold = true;
-        this.allowWithGold = true;
-        this.allowWithPirates = false;
-
-        this.allowToOcean = false;
         this.image = image;
-
-        this.goldCount = 0;
-
         this.element = m('div', 'container', {
             width: this.size + 'px',
             height: this.size + 'px'
@@ -53,12 +62,6 @@ export class Card {
         }, false);
 
         this.setGoldCount(0);
-
-//        var angle = Math.round(Math.random()*3)*90;
-//        this.element.style.transform = 'rotate('+angle+'deg)';
-
-        this.x = 0;
-        this.y = 0;
 
         this.n = rotN;
 
@@ -134,7 +137,6 @@ export class Card {
             var angle = -this.n*90;
             this.card.style.transform = 'rotateZ('+angle+'deg) rotateY(180deg)';
 
-//            this.card.classList.add('flipped');
             this.setGoldCount(this.goldCount);
         }
     }

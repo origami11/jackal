@@ -34,7 +34,7 @@ var gameMap = [
 
 function deckFromList(list) {
     var cardsMap = {
-        'empty_01': Empty1, 'empty_02': Empty2, 'empty_03': Empty3, 'empty_03': Empty4, 
+        'empty_01': Empty1, 'empty_02': Empty2, 'empty_03': Empty3, 'empty_04': Empty4, 
         'arrow_01': Arrow1, 'arrow_02': Arrow2, 'arrow_03': Arrow3, 'arrow_04': Arrow4, 'arrow_05': Arrow5, 'arrow_06': Arrow6, 'arrow_07': Arrow7,  
         'ice': Ice, 
         'girl': Girl, 
@@ -58,11 +58,28 @@ function deckFromList(list) {
 }
 
 class GameBoard {  
+    public activePlayer;
+    public lastPos: Array<any>;
+    public deck: Array<Card>;
+    public players: Array<Player>;
+
+    /* Номер игрока */
+    public id;
+    /* Количество игроков */
+    public count; 
+    /* Размеры поля */
+    public width;
+    public height;
+    
+    private grid: HTMLDivElement;
+    public element: HTMLDivElement;
+
+    public onmove: Listener;
+
     constructor(w, h, root, list, id, count) {
         this.id = id;
         this.width = w;
         this.height = h;
-        this.colors = ['white', 'red', 'yellow', 'green'];
         this.onmove = new Listener();
         this.count = count;
 
@@ -439,7 +456,7 @@ class GameBoard {
         this.showMoves(player, p, []);
     }
 
-    render(id) {
+    render() {
         
         this.deck.forEach(item => {
             this.grid.appendChild(item.element);
@@ -492,16 +509,6 @@ class GameBoard {
 
         actions.appendChild(sh);
 
-        /*var die = m('button', 'die-ship', {});
-        die.textContent = 'Умереть';
-        die.addEventListener('click', () => {
-            var player = this.getActivePlayer();
-            var pirate = player.getActiveElement();
-
-            sendMessage('die', {player: player.ID, pirate: pirate.ID});  
-        });
-        actions.appendChild(die);*/
-
         this.onmove.subscribe(() => {
             var player = this.getActivePlayer()
             var p = player.getActiveElement();
@@ -546,33 +553,6 @@ window.playRecord = function () {
             
     if (n) {
         n.forEach(message => socket.send(message));
-    }
-}
-
-class FakeWebSocket {
-    constructor(url) {
-        this.onopen = null;
-        this.onmessage = null;
-//        this.deck = makeRandomDeck(11, 11);
-        fetch('./deck.json').then(r => r.json()).then((data) => {
-            this.deck = data;
-            setTimeout(() => {
-                this.onopen(null);
-                this.serverSend(JSON.stringify({action: 'start', data: {id: 1, deck: this.deck, count: 1, messages: []}}));
-            }, 100);
-        })
-    }
-
-    serverSend(message) {
-        this.onmessage({data: message});
-    }
-
-    send(message) {        
-        //console.log(JSON.parse(message));
-        if (isRecord) {
-            steps.push(message);
-        }
-        this.onmessage({data: message});
     }
 }
 
@@ -681,9 +661,7 @@ window.sendActive = function (name, props = {}, tagret = 'all') {
 
 window.msgList = Object.keys(actions);
 
-var socket = window.debugGame ?
-new FakeWebSocket("ws://"+window.location.hostname+":3001")
-: new WebSocket("ws://"+window.location.hostname+":3001");
+var socket = new WebSocket("ws://"+window.location.hostname+":3001");
 
 socket.onmessage = processMessages;
 socket.onopen = function (event) {

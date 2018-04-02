@@ -3,6 +3,17 @@ import { m } from '../utils.js';
 import { cellSize } from '../options.js';
 
 export class Ship {
+    public goldCount;
+
+    private gold;
+    private size;
+    public color;
+    public element;
+
+    public x;
+    public y;
+    public side;
+
     constructor(x, y, color) {
         this.side = 0;
 

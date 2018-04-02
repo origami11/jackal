@@ -2,6 +2,25 @@ import { m } from '../utils.js';
 import { cellSize } from '../options.js';
 
 export class Pirate {
+    public color;
+    public goldCount;
+    public waitMoves;
+    public waitLoop;
+    public pID;
+    public ID;
+    public isDead: boolean;
+
+    public element: HTMLDivElement;
+    public image: HTMLDivElement;
+    public text: HTMLSpanElement;
+    public gold: HTMLDivElement;
+
+    public x;
+    public y;
+
+    public player;
+    public card;
+
     constructor(x, y, color, id) {
         this.color = color; 
         this.goldCount = 0;
@@ -65,7 +84,7 @@ export class Pirate {
 
     setGoldCount (n) {
         this.goldCount = n;
-        this.gold.style.display = (n == 0) ? 'none' : 'block';        
+        this.gold.style.display = (n == 0) ? 'none' : 'block';
     }
 
     setActive(flag, step) {

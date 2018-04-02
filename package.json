@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "tsc": "tsc --outDir public/js -m amd ./src/ts/game.ts",
     "start": "node server.js"
   },
   "repository": {
@@ -15,6 +16,7 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/origami11/jackal#readme",
   "dependencies": {
+    "requirejs": "^2.3.5",
     "ws": "^5.1.0"
   }
 }

@@ -10,10 +10,16 @@ const { makeRandomDeck } = require('./lib/deck.js');
 const port = 3000;
 
 class Game {
-    constructor(id, num) {
+    constructor(id, names) {
         this.id = id;
         this.width = 11;
         this.height = 11;        
+        this.messages = [];
+
+        this.users = names.split(',');
+
+        var num = this.users.length;
+        console.log(this.users, num);
 
         this.list = [];
         this.numPlayers = num;
@@ -66,16 +72,15 @@ class Game {
 
     start() {        
         for(var i = 0; i < this.numPlayers; i++) {
-            this.players[i].send(JSON.stringify({action: 'start', data: {id: i+1, deck: this.deck, count: this.numPlayers, messages: this.list}}));
+            this.players[i].send(JSON.stringify({action: 'start', data: {user: this.users[i], id: i+1, deck: this.deck, count: this.numPlayers, messages: this.list}}));
         }
     }
 }
 
-
 var args = parseArgs(process.argv.slice(2), {
     default: {
         gameid: new Date().getTime().toString(16),
-        players: 2
+        players: 'p1,p2',
     }
 })
 

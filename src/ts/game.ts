@@ -512,7 +512,54 @@ class GameBoard {
     }
 }
 
+class Chat {
+    list;
+    root;
+    user;
+
+    constructor(user, root) {
+        this.user = user;
+        this.root = root;
+
+        this.render();
+    }
+
+    addMessage(data) {
+        var msg = m('div', 'message-item', {});
+        var user = m('div', 'message-user', {});
+        var txt = m('div', 'message-text', {});
+
+        var t = new Date();
+        t.setTime(data.time);
+
+        user.textContent = data.user + ' ' + t.getHours() + ':' + t.getMinutes();
+        txt.textContent = data.text;
+
+        msg.appendChild(user);
+        msg.appendChild(txt);
+
+        this.list.appendChild(msg);
+    }
+
+    render() {
+        var list = this.list = m('div', 'message-list', {});
+        var input = m('input', 'message-input', {});
+
+        input.addEventListener('keypress', (event) => {
+            if (event.key == 'Enter') {
+                sendMessage('chat', {time: (new Date()).getTime(), user: this.user, text: input.value});
+                input.value = '';
+            }
+        });
+
+        this.root.appendChild(list);
+        this.root.appendChild(input);
+    }
+}
+
 let g: GameBoard = null;
+let chat: Chat = null;
+
 var actions = {
     // Начинаем игру
     'start': (data) => {
@@ -521,6 +568,9 @@ var actions = {
             var root = document.getElementById('root');
             g = new GameBoard(11, 11, root, data.deck, data.id, data.count);
             // Воспроизводим ранее записанные действия
+            var chatRoot = document.getElementById('chat');
+            chat = new Chat(data.user, chatRoot);
+
             var list = data.messages;
             list.forEach(m => processMessages({data: m}));
         }
@@ -587,7 +637,10 @@ var actions = {
         var cto = g.getCard(to.x, to.y);
         cfrom.setXY(to.x, to.y);
         cto.setXY(from.x, from.y);
-    }
+    },
+    'chat': (data) => {
+        chat.addMessage(data);
+    },
 }
 
 function processMessages(event) {

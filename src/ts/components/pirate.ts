@@ -113,6 +113,27 @@ export class Pirate {
         return 'Пират #' + n;
     }
 
+    getStatus() {
+        if (this.isDead && this.player.canBeResurected(this)) {
+            return 'rebirth';
+        }
+
+        if (this.isDead) {
+            return 'dead'
+        }
+        if (this.waitMoves > 0) {
+            return 'wait'; 
+        }
+        if (this.waitLoop > 0) {
+            return 'wait'; 
+        }
+        if (this.player.isMoving(this)) {   
+            return 'move';
+        }
+
+        return 'move';
+    }
+
     isFriend(p) {
         return this.player.ID == p.player.ID || this.player.friends.indexOf(p.player) >= 0;
     }

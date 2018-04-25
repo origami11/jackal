@@ -431,8 +431,7 @@ class GameBoard {
         this.showMoves(player, p, []);
     }
 
-    render() {
-        
+    render() {      
         this.deck.forEach(item => {
             this.grid.appendChild(item.element);
         });
@@ -445,69 +444,52 @@ class GameBoard {
         });
 
         var root = document.getElementById('info');
-        this.players.forEach(item => {
-            let info = m('div', 'player-info', {
-                background: item.color 
-            }); 
-            item.status.subscribe((f) => {
-                info.style.opacity = f ? 1 : 0.2;
-            });
-            root.appendChild(info);
-        });
+        var info = this.players.map(item => 
+            h('div', {
+                    className: 'player-info', 
+                    style: { background: item.color }
+                }, 
+                item.pirates.map(p =>
+                    h('div', {className: 'player-pirate ' + p.getStatus()}, p.ID)
+                ),
+                h('div', {className: 'player-ship'})
+            )
+        );
+        patch(root, info);
 
         var actions = document.getElementById('actions');
-        var actionBtn = m('button', 'get-money', {});
-        actionBtn.disabled = true;
-        actionBtn.textContent = 'Взять монету';
-        actions.appendChild(actionBtn);
+        var actionList = [
+            h('button', {
+                className: 'get-money', 
+                onclick: () => {
+                    sendMessage('gold', {player: this.activePlayer}, 'all');
+                },
+                disabled: true 
+            }, 'Взять монету'),
 
-        actionBtn.addEventListener('click', () => {
-            sendMessage('gold', {player: this.activePlayer}, 'all');
-        });
+            [1, 2, 3].map(n => 
+                h('button', {
+                    className: 'select-pirate'                
+                    onclick: () => {              
+                        sendMessage('pirate', {player: this.activePlayer, pirate: i}, 'all');
+                    }
+                }, 'Пират #' + n)
+            ),
 
-        var pirateBtn = [];
-        for(let i = 0; i < 3; i++) {
-            var p = m('button', 'select-pirate', {});
-            p.textContent = 'Пират #' + (i + 1);
-            p.addEventListener('click', () => {              
-                sendMessage('pirate', {player: this.activePlayer, pirate: i}, 'all');
-            });
-            actions.appendChild(p);
-            pirateBtn.push(p);
-        }
-
-        var sh = m('button', 'select-ship', {});
-        sh.textContent = 'Корабль';
-        sh.addEventListener('click', () => {
-            sendMessage('ship', {player: this.activePlayer}, 'all');  
-        });
-
-        actions.appendChild(sh);
+            h('button', {
+                className: 'select-ship'                
+                click: () => {
+                    sendMessage('ship', {player: this.activePlayer}, 'all');  
+                }
+            }, 'Корабль')            
+        ];
+        patch(actions, actionList);
 
         this.onmove.subscribe(() => {
             var player = this.getActivePlayer()
             var p = player.getActiveElement();
 
-            if (!this.isActivePlayer(this.activePlayer)) {
-                actions.style.display = 'none';
-                return;
-            }
-            actions.style.display = 'block';
-
-            for(var i = 0; i < pirateBtn.length; i++) {
-                pirateBtn[i].textContent = player.pirates[i].getStatusName();
-            }
-
-            var current = this.getCard(p.x, p.y);
-            if (current && p.goldCount == 0 && current.goldCount > 0) {
-                actionBtn.textContent = 'Взять монету';
-                actionBtn.disabled = false;
-            } else if (p.goldCount > 0) {
-                actionBtn.textContent = 'Положить монету';
-                actionBtn.disabled = false;
-            } else {
-                actionBtn.disabled = true;
-            }
+            patch(actions, actionList);
         });
     }
 }

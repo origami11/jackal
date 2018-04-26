@@ -23,7 +23,7 @@ export function patch(root, dom) {
 /**
  * Простой алгоритм для vdom. Считается что элементы не меняются, а меняются только их свойства
  */
-function patchNode(root, dom, cn == null) {
+function patchNode(root, dom, cn = null) {
     var i = 0;
     var cn = cn || root.firstChild, item = dom.length > i ? dom[i] : null;
     
@@ -68,7 +68,7 @@ function renderNode(root, dom) {
             } else if (key == 'style') {
                 var st = dom.attr[key].style;
                 Object(st).forEach(s => {
-                    el.style[i] = st[i];
+                    el.style[s] = st[s];
                 });
             } else {
                 el[key] = dom.attr[key];

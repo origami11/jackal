@@ -444,15 +444,15 @@ class GameBoard {
 
             [1, 2, 3].map(n => 
                 h('button', {
-                    className: 'select-pirate'                
+                    className: 'select-pirate',
                     onclick: () => {              
-                        sendMessage('pirate', {player: this.activePlayer, pirate: i}, 'all');
+                        sendMessage('pirate', {player: this.activePlayer, pirate: n}, 'all');
                     }
                 }, 'Пират #' + n)
             ),
 
             h('button', {
-                className: 'select-ship'                
+                className: 'select-ship',
                 onclick: () => {
                     sendMessage('ship', {player: this.activePlayer}, 'all');  
                 }

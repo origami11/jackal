@@ -1,5 +1,5 @@
 ﻿//"use strict";
-import { m } from './utils.js';
+import { m, h, patch } from './utils.js';
 import { Listener } from './listener.js';
 
 import { Card, createCard } from './components/card.js';
@@ -52,6 +52,10 @@ class GameBoard {
     public onmove: Listener;
 
     constructor(w, h, root, list, id, count) {
+
+        this.nodeInfo = document.getElementById('info');
+        this.nodeActions = document.getElementById('actions');
+
         this.id = id;
         this.width = w;
         this.height = h;
@@ -75,45 +79,16 @@ class GameBoard {
 
         this.setCardXY();
 
-        this.element = m('div', 'playground', {
-            width: cellSize * (w + 2) + 'px',
-            height: cellSize * (h + 2) + 'px'
-        });
-
-        this.grid = m('div', 'grid', {
-            width: cellSize * w + 'px',
-            height: cellSize * h + 'px',
-            top: cellSize + 'px',
-            left: cellSize + 'px'
-        });
-
-        this.element.appendChild(this.grid)
-        root.style.width = cellSize * (w + 2) + 'px';
-        root.style.height = cellSize * (h + 2) + 'px';
-        root.appendChild(this.element);
-
         this.lastPos = [];
+    
+        this.onmove.subscribe(() => {
+            var player = this.getActivePlayer()
+            var p = player.getActiveElement();
 
-        this.element.addEventListener('click', (event) => {
-            var x = Math.floor((event.clientX - this.element.offsetLeft) / cellSize) - 1;
-            var y = Math.floor((event.clientY - this.element.offsetTop) / cellSize) - 1;
-
-                        
-            var player = this.activePlayer;
-            if (this.isActivePlayer(player)) {
-                if (this.applyUserStep(x, y)) {
-                    sendMessage('step', {player: player, x: x, y: y}, 'other');
-                }
-            }
+            patch(this.nodeActions, this.renderActions());
         });
 
         this.render();
-
-        var player = this.getActivePlayer();
-        this.showMoves(player, player.getActiveElement(), this.lastPos);
-        this.players.forEach(p => {
-            p.setActive(p == player);
-        });
     }
 
     isActivePlayer(player) {
@@ -431,20 +406,20 @@ class GameBoard {
         this.showMoves(player, p, []);
     }
 
-    render() {      
-        this.deck.forEach(item => {
-            this.grid.appendChild(item.element);
-        });
+    onBoardClick = (event) => {
+        var x = Math.floor((event.clientX - this.element.offsetLeft) / cellSize) - 1;
+        var y = Math.floor((event.clientY - this.element.offsetTop) / cellSize) - 1;
+                    
+        var player = this.activePlayer;
+        if (this.isActivePlayer(player)) {
+            if (this.applyUserStep(x, y)) {
+                sendMessage('step', {player: player, x: x, y: y}, 'other');
+            }
+        }
+    }
 
-        this.players.forEach(player => {
-            player.pirates.forEach(pirate => {
-                this.grid.appendChild(pirate.element);
-            });
-            this.grid.appendChild(player.ship.element);
-        });
-
-        var root = document.getElementById('info');
-        var info = this.players.map(item => 
+    renderInfo() {
+        return this.players.map(item => 
             h('div', {
                     className: 'player-info', 
                     style: { background: item.color }
@@ -455,10 +430,10 @@ class GameBoard {
                 h('div', {className: 'player-ship'})
             )
         );
-        patch(root, info);
+    }
 
-        var actions = document.getElementById('actions');
-        var actionList = [
+    renderActions() {
+        return [
             h('button', {
                 className: 'get-money', 
                 onclick: () => {
@@ -478,19 +453,53 @@ class GameBoard {
 
             h('button', {
                 className: 'select-ship'                
-                click: () => {
+                onclick: () => {
                     sendMessage('ship', {player: this.activePlayer}, 'all');  
                 }
-            }, 'Корабль')            
+            }, 'Корабль')
         ];
-        patch(actions, actionList);
+    }
 
-        this.onmove.subscribe(() => {
-            var player = this.getActivePlayer()
-            var p = player.getActiveElement();
-
-            patch(actions, actionList);
+    render() {
+        this.element = m('div', 'playground', {
+            width: cellSize * (w + 2) + 'px',
+            height: cellSize * (h + 2) + 'px'
         });
+
+        this.grid = m('div', 'grid', {
+            width: cellSize * w + 'px',
+            height: cellSize * h + 'px',
+            top: cellSize + 'px',
+            left: cellSize + 'px'
+        });
+
+        this.element.appendChild(this.grid)
+        root.style.width = cellSize * (w + 2) + 'px';
+        root.style.height = cellSize * (h + 2) + 'px';
+        root.appendChild(this.element);
+      
+        this.deck.forEach(item => {
+            this.grid.appendChild(item.element);
+        });
+
+        this.players.forEach(player => {
+            player.pirates.forEach(pirate => {
+                this.grid.appendChild(pirate.element);
+            });
+            this.grid.appendChild(player.ship.element);
+        });
+
+        this.element.addEventListener('click', this.onBoardClick);
+
+        var player = this.getActivePlayer();
+        this.showMoves(player, player.getActiveElement(), this.lastPos);
+
+        this.players.forEach(p => {
+            p.setActive(p == player);
+        });
+
+        patch(this.nodeInfo, this.renderInfo());
+        patch(this.nodeActions, this.renderActions());
     }
 }
 

@@ -13,31 +13,70 @@ export function m(tag, className, style) {
 
 
 export function h(tag, props, ...arg: any[]) {
-    return {tag: tag, p: props, c: args};
+    return {tag: tag, attr: props, c: args};
 }
 
 export function patch(root, dom) {
-    var el;
-    if (typeof dom == 'string') {
-        el = document.createTextNode(dom);
-    } else {
-        el = document.createElement(dom.tag);
+    patchNode(root, dom);
+}
 
-        Object.keys(dom.p).forEach(key => {
-            if (key == 'style') {
-                var st = dom.p[key].style;
+/**
+ * Простой алгоритм для vdom. Считается что элементы не меняются, а меняются только их свойства
+ */
+function patchNode(root, dom, cn == null) {
+    var i = 0;
+    var cn = cn || root.firstChild, item = dom.length > i ? dom[i] : null;
+    
+    while(cn || item) {
+        if (cn) {
+            if (Array.isArray(item)) {
+                patchNode(root, item, cn)
+            } if (typeof item == 'string') {
+                cn.textContent = item;
+            } else {
+                Object.keys(item.attr).forEach(key => {
+                    if (key == 'onclick') {
+                        // Пропускаем
+                    } else if (key == 'style') {
+                        // Пропускаем
+                    } else {
+                        cn[key] = item.attr[key];
+                    }
+                });
+
+                patchNode(cn, item.c);
+            }
+            cn = cn.nextSibling;
+        } else {
+            renderNode(root, item);
+        }
+        item = dom.length > i ? dom[++i] : null;
+    }
+}
+
+function renderNode(root, dom) {
+    if (Array.isArray(dom)) {
+        dom.forEach(item => renderNode(root, item));
+    } else if (typeof dom == 'string') {
+        root.appendChild(document.createTextNode(dom));
+    } else {
+        var el = document.createElement(dom.tag);
+
+        Object.keys(dom.attr).forEach(key => {
+            if (key == 'onclick') {
+                el.addEventListener('click', dom.p[key]);
+            } else if (key == 'style') {
+                var st = dom.attr[key].style;
                 Object(st).forEach(s => {
                     el.style[i] = st[i];
-                })
+                });
             } else {
-                el[key] = dom.p[key];
+                el[key] = dom.attr[key];
             }
-            })
-        
-        dom.c.forEach(node => {
-            patch(el, node);
         });
+        
+        renderNode(el, dom.c);
+        root.appendChild(el);
     }
-
-    root.appendChild(el);
 }
+

@@ -227,7 +227,7 @@ html, body {
     width: 70px;
     position: absolute;
     z-index: 1001;
-    top: 210px;
+    top: 160px;
     left: 10px
 }
 
@@ -245,15 +245,29 @@ html, body {
     cursor:pointer;
 }
 
+.sidebar {
+    position: absolute;
+    width: 280px;
+    bottom: 0;
+    top: 0;
+    background: #c0e5e9;
+    box-shadow: 0 0 2px 0 rgba(0 ,0 ,0 ,0.3);
+}
+
+.gameboard {
+    left: 300px;
+    right: 0;
+    position: absolute;
+}
+
 #chat {
     z-index: 1000;
     position: absolute;
-    right: 0;
-    width: 300px;
+    left: 0;
+    width: 280px;
     background: #e3fafc;
-    top: 0;
+    top: 360px;
     bottom: 0;
-    box-shadow: 0 0 2px 0 rgba(0 ,0 ,0 ,0.3);
 }
 
 .message-input {
@@ -289,3 +303,4 @@ html, body {
     top: 0px;
     box-sizing: border-box;
 }
+

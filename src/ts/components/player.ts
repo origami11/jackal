@@ -52,7 +52,7 @@ export class Player {
     }
 
     isMoving(pirate) {
-        return pirate.id == this.activeElement;
+        return pirate.ID == this.activeElement;
     }
 
     setActiveElement(n) {

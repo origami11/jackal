@@ -444,13 +444,13 @@ class GameBoard {
                 disabled: true 
             }, 'Взять монету'),
 
-            [1, 2, 3].map(n => 
+            [0, 1, 2].map(n => 
                 h('button', {
                     className: 'select-pirate',
                     onclick: () => {              
                         sendMessage('pirate', {player: this.activePlayer, pirate: n}, 'all');
                     }
-                }, 'Пират #' + n)
+                }, 'Пират #' + (n + 1))
             ),
 
             h('button', {

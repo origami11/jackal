@@ -115,23 +115,23 @@ export class Pirate {
 
     getStatus() {
         if (this.isDead && this.player.canBeResurected(this)) {
-            return 'rebirth';
+            return 'status-birth';
         }
 
         if (this.isDead) {
-            return 'dead'
+            return 'status-dead'
         }
         if (this.waitMoves > 0) {
-            return 'wait'; 
+            return 'status-wait'; 
         }
         if (this.waitLoop > 0) {
-            return 'wait'; 
+            return 'status-wait'; 
         }
         if (this.player.isMoving(this)) {   
-            return 'move';
+            return 'status-active';
         }
 
-        return 'move';
+        return 'status-move';
     }
 
     isFriend(p) {

@@ -124,6 +124,7 @@ html, body {
 }
 
 .info-pirate, .info-ship {
+    opacity: 0.3;
     color: #fff;
     width: 25px;
     height: 25px;
@@ -133,6 +134,11 @@ html, body {
     display: inline-block;
     text-align: center;
     line-height: 23px;
+}
+
+.status-active {
+    opacity: 1;
+    border-color: red;
 }
 
 .player-gold {

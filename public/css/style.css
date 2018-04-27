@@ -113,7 +113,7 @@ html, body {
 }
 
 .player-info {
-    opacity: 0.5;
+    _opacity: 0.5;
     padding-left: 5px;
     border-left: 4px solid rgba(0, 0, 0, 0);
 }
@@ -130,6 +130,7 @@ html, body {
 }
 
 .info-pirate, .info-ship {
+    position: relative;
     opacity: 0.3;
     color: #fff;
     width: 25px;
@@ -145,6 +146,29 @@ html, body {
 .status-active {
     opacity: 1;
     border-color: red;
+}
+
+.status-wait:after, .status-dead:after, .status-nomove:after {
+    content: "";
+    display: block;
+    font-size: 12px;
+    font-weight: bold;
+    top: -2px;
+    right: -2px;
+    color: #fff;
+    position: absolute;
+    background: #000;
+    border-radius: 10px;
+    width: 10px;
+    height: 10px;
+}
+
+.status-wait:after {
+    background-color: green;
+}
+
+.status-nomove:after {
+    background-color: red;
 }
 
 .player-gold {

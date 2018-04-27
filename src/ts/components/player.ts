@@ -37,7 +37,7 @@ export class Player {
     setActive(flag) {
         if (flag != this.flag) {
             this.pirates[this.activeElement].setActive(flag, this.step);
-            this.status.fire(flag);
+            this.status.send(flag);
             this.flag = flag;
 
             if (flag) {

@@ -114,6 +114,7 @@ export class Pirate {
     }
 
     getStatus() {
+        var status = 'status-move';
         if (this.isDead && this.player.canBeResurected(this)) {
             return 'status-birth';
         }
@@ -121,17 +122,20 @@ export class Pirate {
         if (this.isDead) {
             return 'status-dead'
         }
-        if (this.waitMoves > 0) {
-            return 'status-wait'; 
-        }
+
         if (this.waitLoop > 0) {
-            return 'status-wait'; 
-        }
-        if (this.player.isMoving(this)) {   
-            return 'status-active';
+            return 'status-nomove'; 
         }
 
-        return 'status-move';
+        if (this.waitMoves > 0) {
+            status = ' status-wait'; 
+        }
+
+        if (this.player.isMoving(this)) {   
+            return status + ' status-active';
+        }
+
+        return status;
     }
 
     isFriend(p) {

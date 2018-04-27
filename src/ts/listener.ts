@@ -11,7 +11,7 @@ export class Listener {
     remove(fn) {        
     }
 
-    fire(...args) {
+    send(...args) {
         for(var i = 0; i < this.list.length; i++) {
             this.list[i](...args);
         }

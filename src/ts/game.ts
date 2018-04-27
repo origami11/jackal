@@ -90,6 +90,7 @@ class GameBoard {
         this.lastPos = [];
     
         this.onmove.subscribe(() => {
+//            console.log(1);
             patch(this.nodeInfo, this.renderInfo());
             patch(this.nodeActions, this.renderActions());
         });
@@ -308,7 +309,7 @@ class GameBoard {
             }
         }
 
-        this.onmove.fire(); 
+        this.onmove.send(); 
     }
 
     setXY(pirate, x, y) {
@@ -391,6 +392,8 @@ class GameBoard {
     switchShip() {
         var player = this.getActivePlayer();
         player.moveShip = true;
+
+        this.onmove.send();
     }
 
     switchGold() {
@@ -426,13 +429,14 @@ class GameBoard {
 
     renderInfo() {
         return this.players.map(item => {
+            console.log('ship', item.moveShip);
             return h('div', {
                     className: 'player-info' + (this.activePlayer == item.ID ? ' active-player' : '')                    
                 }, 
                 item.pirates.map(p =>
-                    h('div', {className: 'info-pirate ' + p.getStatus(), style: { background: item.color }}, p.ID + 1)
+                    h('div', {className: 'info-pirate ' + (!item.moveShip ? p.getStatus() : ''), style: { background: item.color }}, p.ID + 1)
                 ),
-                h('div', {className: 'info-ship', style: { background: item.color }}, 'S'),
+                h('div', {className: 'info-ship' + (item.moveShip ? ' status-active' : ''), style: { background: item.color }}, 'S'),
                 h('div', {className: 'info-name'}, this.users[item.ID])
             )
         });

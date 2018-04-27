@@ -44,6 +44,7 @@ class GameBoard {
     /* Количество игроков */
     public count; 
     public users = [];
+    
     /* Размеры поля */
     public width;
     public height;
@@ -56,7 +57,7 @@ class GameBoard {
 
     public onmove: Listener;
 
-    constructor(w, h, root, list, id, count, users) {
+    constructor(w, h, root, list, id, count, users, name) {
 
         this.nodeInfo = document.getElementById('info');
         this.nodeActions = document.getElementById('actions');
@@ -69,6 +70,7 @@ class GameBoard {
 
         this.count = count;
         this.users = users;
+        this.name = name;
 
         this.deck = deckFromList(list);
 
@@ -90,7 +92,6 @@ class GameBoard {
         this.lastPos = [];
     
         this.onmove.subscribe(() => {
-//            console.log(1);
             patch(this.nodeInfo, this.renderInfo());
             patch(this.nodeActions, this.renderActions());
         });
@@ -103,10 +104,10 @@ class GameBoard {
             return (this.id == 1 && player == 0) || (this.id == 2 && player == 1) || (this.id == 3 && player == 2) || (this.id == 4 && player == 3);
         }
         if (this.count == 3) {
-            return (this.id == 1 && [1, 3].indexOf(player) >= 0) || (this.id == 2 && player == 0) || (this.id == 3 && player == 2);
+            return (this.id == 1 && [0, 2].indexOf(player) >= 0) || (this.id == 2 && player == 1) || (this.id == 3 && player == 3);
         }
         if (this.count == 2) {
-            return this.id == 1 && [1, 3].indexOf(player) >= 0 || this.id == 2 && [0, 2].indexOf(player) >= 0;
+            return this.id == 1 && [0, 2].indexOf(player) >= 0 || this.id == 2 && [1, 3].indexOf(player) >= 0;
         }
         return true;
     }
@@ -443,45 +444,48 @@ class GameBoard {
     }
 
     renderActions() {
-       var player = this.getActivePlayer()
-       var p = player.getActiveElement();
+        var player = this.getActivePlayer()
+        var p = player.getActiveElement();
 
-       var current = this.getCard(p.x, p.y);
-       if (current && p.goldCount == 0 && current.goldCount > 0) {
-           var text = 'Взять монету';
-           var disabled = false;
-       } else if (p.goldCount > 0) {
-           var textContent = 'Положить монету';
-           var disabled = false;
-       } else {
-           var text = 'Взять монету';
-           var disabled = true;
-       }
+        var current = this.getCard(p.x, p.y);
+        if (current && p.goldCount == 0 && current.goldCount > 0) {
+            var text = 'Взять монету';
+            var disabled = false;
+        } else if (p.goldCount > 0) {
+            var text = 'Положить монету';
+            var disabled = false;
+        } else {
+            var text = 'Взять монету';
+            var disabled = true;
+        }
 
         return [
-            h('button', {
-                className: 'get-money', 
-                onclick: () => {
-                    sendMessage('gold', {player: this.activePlayer}, 'all');
-                },
-                disabled: disabled 
-            }, text),
-
-            [0, 1, 2].map(n => 
+            h('div', {className: 'action-name'}, this.name),
+            h('div', {className: 'action-list' + (this.isActivePlayer(this.activePlayer) ? ' action-active': '')},
                 h('button', {
-                    className: 'select-pirate',
-                    onclick: () => {              
-                        sendMessage('pirate', {player: this.activePlayer, pirate: n}, 'all');
+                    className: 'get-money',
+                    onclick: () => {
+                        sendMessage('gold', {player: this.activePlayer}, 'all');
+                    },
+                    disabled: disabled
+                }, text),
+    
+                [0, 1, 2].map(n => 
+                    h('button', {
+                        className: 'select-pirate',
+                        onclick: () => {              
+                            sendMessage('pirate', {player: this.activePlayer, pirate: n}, 'all');
+                        }
+                    }, 'Пират #' + (n + 1))
+                ),
+    
+                h('button', {
+                    className: 'select-ship',
+                    onclick: () => {
+                        sendMessage('ship', {player: this.activePlayer}, 'all');  
                     }
-                }, 'Пират #' + (n + 1))
-            ),
-
-            h('button', {
-                className: 'select-ship',
-                onclick: () => {
-                    sendMessage('ship', {player: this.activePlayer}, 'all');  
-                }
-            }, 'Корабль')
+                }, 'Корабль')
+            )
         ];
     }
 
@@ -537,7 +541,7 @@ var actions = {
         // Создаем игровое поле
         if (!g) {
             var root = document.getElementById('root');
-            g = new GameBoard(11, 11, root, data.deck, data.id, data.count, data.players);
+            g = new GameBoard(11, 11, root, data.deck, data.id, data.count, data.players, data.user);
             // Воспроизводим ранее записанные действия
             var chatRoot = document.getElementById('chat');
             chat = new Chat(data.user, chatRoot);

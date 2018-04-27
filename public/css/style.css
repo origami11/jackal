@@ -171,6 +171,18 @@ html, body {
     background-color: red;
 }
 
+.action-list {
+    display: none;
+}
+
+.action-active {
+    display: block;
+}
+
+.action-name {
+    text-align: center;
+}
+
 .player-gold {
     position: absolute;
     top: 5px;

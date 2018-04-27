@@ -443,14 +443,29 @@ class GameBoard {
     }
 
     renderActions() {
+       var player = this.getActivePlayer()
+       var p = player.getActiveElement();
+
+       var current = this.getCard(p.x, p.y);
+       if (current && p.goldCount == 0 && current.goldCount > 0) {
+           var text = 'Взять монету';
+           var disabled = false;
+       } else if (p.goldCount > 0) {
+           var textContent = 'Положить монету';
+           var disabled = false;
+       } else {
+           var text = 'Взять монету';
+           var disabled = true;
+       }
+
         return [
             h('button', {
                 className: 'get-money', 
                 onclick: () => {
                     sendMessage('gold', {player: this.activePlayer}, 'all');
                 },
-                disabled: true 
-            }, 'Взять монету'),
+                disabled: disabled 
+            }, text),
 
             [0, 1, 2].map(n => 
                 h('button', {

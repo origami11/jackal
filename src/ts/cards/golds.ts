@@ -1,4 +1,4 @@
-import { Card, registerCard } from '../components/card.js';
+import { Card, registerCard } from '../components/card';
 
 class Gold1 extends Card {
     constructor(rotN) { 

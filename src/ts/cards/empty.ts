@@ -1,4 +1,4 @@
-import { Card, registerCard } from '../components/card.js';
+import { Card, registerCard } from '../components/card';
 
 class Empty1 extends Card {
     constructor(rotN) { super('empty_01', rotN);  }    

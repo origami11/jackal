@@ -107,17 +107,32 @@ html, body {
 #info {
     position: absolute;
     top: 10px;
-    left: 10px;
+    left: 5px;
     z-index: 1000;
-    padding: 10px;
+    padding: 5px;
 }
 
 .player-info {
-    width: 30px;
-    height: 30px;
+    opacity: 0.5;
+    padding-left: 5px;
+    border-left: 4px solid rgba(0, 0, 0, 0);
+}
+
+.active-player {
+    opacity: 1;
+    border-left: 4px solid #ff0000;
+}
+
+.info-pirate, .info-ship {
+    color: #fff;
+    width: 25px;
+    height: 25px;
     border: 1px solid #000000;
     margin: 3px;
     border-radius: 20px;
+    display: inline-block;
+    text-align: center;
+    line-height: 23px;
 }
 
 .player-gold {

@@ -1,10 +1,11 @@
 ﻿//"use strict";
-import { m, h, patch } from './utils.js';
-import { Listener } from './listener.js';
+import { m, h, patch } from './utils';
+import { Listener } from './listener';
 
-import { Card, createCard } from './components/card.js';
-import { Player } from './components/player.js';
-import { cellSize } from './options.js';
+import { Card, createCard } from './components/card';
+import { Player } from './components/player';
+import { Chat } from './components/chat';
+import { cellSize } from './options';
 
 import './cards/cardset.js';
 
@@ -47,6 +48,9 @@ class GameBoard {
     public height;
     
     private grid: HTMLDivElement;
+    private nodeInfo: HTMLDivElement;
+    private nodeActions: HTMLDivElement;
+    private root: HTMLDivElement;
     public element: HTMLDivElement;
 
     public onmove: Listener;
@@ -55,6 +59,7 @@ class GameBoard {
 
         this.nodeInfo = document.getElementById('info');
         this.nodeActions = document.getElementById('actions');
+        this.root = root;
 
         this.id = id;
         this.width = w;
@@ -82,9 +87,7 @@ class GameBoard {
         this.lastPos = [];
     
         this.onmove.subscribe(() => {
-            var player = this.getActivePlayer()
-            var p = player.getActiveElement();
-
+            patch(this.nodeInfo, this.renderInfo());
             patch(this.nodeActions, this.renderActions());
         });
 
@@ -419,17 +422,16 @@ class GameBoard {
     }
 
     renderInfo() {
-        return this.players.map(item => 
-            h('div', {
-                    className: 'player-info', 
-                    style: { background: item.color }
+        return this.players.map(item => {
+            return h('div', {
+                    className: 'player-info' + (this.activePlayer == item.ID ? ' active-player' : '')                    
                 }, 
                 item.pirates.map(p =>
-                    h('div', {className: 'player-pirate ' + p.getStatus()}, p.ID)
+                    h('div', {className: 'info-pirate ' + p.getStatus(), style: { background: item.color }}, p.ID + 1)
                 ),
-                h('div', {className: 'player-ship'})
+                h('div', {className: 'info-ship', style: { background: item.color }}, 'S')
             )
-        );
+        });
     }
 
     renderActions() {
@@ -461,6 +463,8 @@ class GameBoard {
     }
 
     render() {
+        var w = this.width;
+        var h = this.height;
         this.element = m('div', 'playground', {
             width: cellSize * (w + 2) + 'px',
             height: cellSize * (h + 2) + 'px'
@@ -474,9 +478,9 @@ class GameBoard {
         });
 
         this.element.appendChild(this.grid)
-        root.style.width = cellSize * (w + 2) + 'px';
-        root.style.height = cellSize * (h + 2) + 'px';
-        root.appendChild(this.element);
+        this.root.style.width = cellSize * (w + 2) + 'px';
+        this.root.style.height = cellSize * (h + 2) + 'px';
+        this.root.appendChild(this.element);
       
         this.deck.forEach(item => {
             this.grid.appendChild(item.element);
@@ -494,57 +498,10 @@ class GameBoard {
         var player = this.getActivePlayer();
         this.showMoves(player, player.getActiveElement(), this.lastPos);
 
-        this.players.forEach(p => {
-            p.setActive(p == player);
-        });
+        this.players.forEach(p => { p.setActive(p == player); });
 
         patch(this.nodeInfo, this.renderInfo());
         patch(this.nodeActions, this.renderActions());
-    }
-}
-
-class Chat {
-    list;
-    root;
-    user;
-
-    constructor(user, root) {
-        this.user = user;
-        this.root = root;
-
-        this.render();
-    }
-
-    addMessage(data) {
-        var msg = m('div', 'message-item', {});
-        var user = m('div', 'message-user', {});
-        var txt = m('div', 'message-text', {});
-
-        var t = new Date();
-        t.setTime(data.time);
-
-        user.textContent = data.user + ' ' + t.getHours() + ':' + t.getMinutes();
-        txt.textContent = data.text;
-
-        msg.appendChild(user);
-        msg.appendChild(txt);
-
-        this.list.appendChild(msg);
-    }
-
-    render() {
-        var list = this.list = m('div', 'message-list', {});
-        var input = m('input', 'message-input', {});
-
-        input.addEventListener('keypress', (event) => {
-            if (event.key == 'Enter') {
-                sendMessage('chat', {time: (new Date()).getTime(), user: this.user, text: input.value});
-                input.value = '';
-            }
-        });
-
-        this.root.appendChild(list);
-        this.root.appendChild(input);
     }
 }
 
@@ -561,6 +518,9 @@ var actions = {
             // Воспроизводим ранее записанные действия
             var chatRoot = document.getElementById('chat');
             chat = new Chat(data.user, chatRoot);
+            chat.onmessage.subscribe((data) => {
+                sendMessage('chat', data);
+            });
 
             var list = data.messages;
             list.forEach(m => processMessages({data: m}));

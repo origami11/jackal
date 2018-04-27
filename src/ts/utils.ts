@@ -12,28 +12,30 @@ export function m(tag, className, style) {
 }
 
 
-export function h(tag, props, ...arg: any[]) {
-    return {tag: tag, attr: props, c: args};
+export function h(tag, props, ...args: any[]) {
+    return {tag: tag, attr: props || {}, c: args};
 }
 
 export function patch(root, dom) {
-    patchNode(root, dom);
+    patchNode(root, dom, root.firstChild);
+}
+
+function isObject(obj) {
+    return obj !== null && typeof obj === 'object';
 }
 
 /**
  * Простой алгоритм для vdom. Считается что элементы не меняются, а меняются только их свойства
  */
-function patchNode(root, dom, cn = null) {
+function patchNode(root, dom, cn) {
     var i = 0;
-    var cn = cn || root.firstChild, item = dom.length > i ? dom[i] : null;
+    var item = dom.length > i ? dom[i] : null;   
     
-    while(cn || item) {
-        if (cn) {
-            if (Array.isArray(item)) {
-                patchNode(root, item, cn)
-            } if (typeof item == 'string') {
-                cn.textContent = item;
-            } else {
+    while(item) {
+        if (Array.isArray(item)) {
+            cn = patchNode(root, item, cn);
+        } else if (cn) {
+             if (isObject(item)) {
                 Object.keys(item.attr).forEach(key => {
                     if (key == 'onclick') {
                         // Пропускаем
@@ -44,7 +46,9 @@ function patchNode(root, dom, cn = null) {
                     }
                 });
 
-                patchNode(cn, item.c);
+                patchNode(cn, item.c, cn.firstChild);
+            } else {
+                cn.textContent = item;
             }
             cn = cn.nextSibling;
         } else {
@@ -52,31 +56,33 @@ function patchNode(root, dom, cn = null) {
         }
         item = dom.length > i ? dom[++i] : null;
     }
+    return cn;
 }
 
 function renderNode(root, dom) {
     if (Array.isArray(dom)) {
         dom.forEach(item => renderNode(root, item));
-    } else if (typeof dom == 'string') {
-        root.appendChild(document.createTextNode(dom));
-    } else {
+    } else if (isObject(dom)) {
         var el = document.createElement(dom.tag);
 
         Object.keys(dom.attr).forEach(key => {
+            var attr = dom.attr[key];
             if (key == 'onclick') {
-                el.addEventListener('click', dom.p[key]);
+                el.addEventListener('click', attr);
             } else if (key == 'style') {
-                var st = dom.attr[key].style;
-                Object(st).forEach(s => {
-                    el.style[s] = st[s];
+                Object.keys(attr).forEach(s => {
+                    el.style[s] = attr[s];
                 });
             } else {
-                el[key] = dom.attr[key];
+                el[key] = attr;
             }
         });
         
         renderNode(el, dom.c);
         root.appendChild(el);
+    } else {
+        root.appendChild(document.createTextNode(dom));
     }
 }
+
 

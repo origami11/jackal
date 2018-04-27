@@ -1,4 +1,4 @@
-import { Card, registerCard } from '../components/card.js';
+import { Card, registerCard } from '../components/card';
 
 var steps = [
     [ 1,  0],

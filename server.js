@@ -18,6 +18,19 @@ class Game {
 
         this.users = names.split(',');
 
+        if (this.users.length == 1) {
+            this.names = [this.users[0], this.users[0], this.users[0], this.users[0]];
+        }
+        if (this.users.length == 2) {
+            this.names = [this.users[0], this.users[1], this.users[0], this.users[1]];
+        }
+        if (this.users.length == 3) {
+            this.names = [this.users[0], this.users[1], this.users[0], this.users[2]];
+        }
+        if (this.users.length == 4) {
+            this.names = [this.users[0], this.users[1], this.users[2], this.users[3]];
+        }
+
         var num = this.users.length;
         console.log(this.users, num);
 
@@ -72,7 +85,7 @@ class Game {
 
     start() {        
         for(var i = 0; i < this.numPlayers; i++) {
-            this.players[i].send(JSON.stringify({action: 'start', data: {user: this.users[i], id: i+1, deck: this.deck, count: this.numPlayers, messages: this.list}}));
+            this.players[i].send(JSON.stringify({action: 'start', data: {user: this.users[i], id: i+1, deck: this.deck, count: this.numPlayers, players: this.names, messages: this.list}}));
         }
     }
 }

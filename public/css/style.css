@@ -123,6 +123,12 @@ html, body {
     border-left: 4px solid #ff0000;
 }
 
+.info-name {
+    display: inline-block;
+    margin-left: 5px;
+    font-size: 12px;
+}
+
 .info-pirate, .info-ship {
     opacity: 0.3;
     color: #fff;

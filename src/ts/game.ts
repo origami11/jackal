@@ -43,6 +43,7 @@ class GameBoard {
     public id;
     /* Количество игроков */
     public count; 
+    public users = [];
     /* Размеры поля */
     public width;
     public height;
@@ -55,7 +56,7 @@ class GameBoard {
 
     public onmove: Listener;
 
-    constructor(w, h, root, list, id, count) {
+    constructor(w, h, root, list, id, count, users) {
 
         this.nodeInfo = document.getElementById('info');
         this.nodeActions = document.getElementById('actions');
@@ -65,7 +66,9 @@ class GameBoard {
         this.width = w;
         this.height = h;
         this.onmove = new Listener();
+
         this.count = count;
+        this.users = users;
 
         this.deck = deckFromList(list);
 
@@ -429,7 +432,8 @@ class GameBoard {
                 item.pirates.map(p =>
                     h('div', {className: 'info-pirate ' + p.getStatus(), style: { background: item.color }}, p.ID + 1)
                 ),
-                h('div', {className: 'info-ship', style: { background: item.color }}, 'S')
+                h('div', {className: 'info-ship', style: { background: item.color }}, 'S'),
+                h('div', {className: 'info-name'}, this.users[item.ID])
             )
         });
     }
@@ -514,7 +518,7 @@ var actions = {
         // Создаем игровое поле
         if (!g) {
             var root = document.getElementById('root');
-            g = new GameBoard(11, 11, root, data.deck, data.id, data.count);
+            g = new GameBoard(11, 11, root, data.deck, data.id, data.count, data.players);
             // Воспроизводим ранее записанные действия
             var chatRoot = document.getElementById('chat');
             chat = new Chat(data.user, chatRoot);

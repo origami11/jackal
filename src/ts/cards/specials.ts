@@ -244,6 +244,12 @@ class Cannibal extends Card {
     constructor(rotN) { 
         super('cannibal', rotN); 
     }    
+
+    enterCard(pirate) {
+        pirate.resetMoves();
+        pirate.setGoldCount(0);
+        pirate.setDead();
+    }
 }
 
 registerCard('cannibal', Cannibal);

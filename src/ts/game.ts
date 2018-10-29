@@ -427,21 +427,23 @@ class GameBoard {
                     disabled: disabled
                 }, text),
     
-                [0, 1, 2].map(n => 
+                h('div', {className: 'action-select'}, 
+                    [0, 1, 2].map(n => 
+                        h('button', {
+                            className: 'select-pirate',
+                            onclick: () => {              
+                                sendMessage('pirate', {player: this.activePlayer, pirate: n}, 'all');
+                            }
+                        }, 'Пират #' + (n + 1))
+                    ),
+        
                     h('button', {
-                        className: 'select-pirate',
-                        onclick: () => {              
-                            sendMessage('pirate', {player: this.activePlayer, pirate: n}, 'all');
+                        className: 'select-ship',
+                        onclick: () => {
+                            sendMessage('ship', {player: this.activePlayer}, 'all');  
                         }
-                    }, 'Пират #' + (n + 1))
-                ),
-    
-                h('button', {
-                    className: 'select-ship',
-                    onclick: () => {
-                        sendMessage('ship', {player: this.activePlayer}, 'all');  
-                    }
-                }, 'Корабль')
+                    }, 'Корабль')
+                )
             )
         ];
     }

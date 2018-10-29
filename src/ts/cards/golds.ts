@@ -1,6 +1,7 @@
 import { Card, registerCard } from '../components/card';
 
-class Gold1 extends Card {
+//@card('gold_01');
+class Gold1 extends Card {    
     constructor(rotN) { 
         super('gold_01', rotN); 
         this.setGoldCount(1);

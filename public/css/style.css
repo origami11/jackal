@@ -224,7 +224,6 @@ html, body {
 
 
 #actions {
-    width: 70px;
     position: absolute;
     z-index: 1001;
     top: 160px;
@@ -238,9 +237,8 @@ html, body {
 #actions button {
     border: none;
     background: #90A4AE;
-    width: 70px;
-    padding: 5px 0;
-    margin: 2px 0;
+    padding: 5px 4px;
+    margin: 2px 1px;
     color: #fff;
     cursor:pointer;
 }
@@ -255,7 +253,7 @@ html, body {
 }
 
 .gameboard {
-    left: 300px;
+    left: 285px;
     right: 0;
     position: absolute;
 }
@@ -266,7 +264,7 @@ html, body {
     left: 0;
     width: 280px;
     background: #e3fafc;
-    top: 360px;
+    top: 295px;
     bottom: 0;
 }
 

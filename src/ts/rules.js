@@ -28,6 +28,19 @@ class Player {
     }
 }
 
+function moveAll(pos, next) {
+    const delta = 1;
+    return Math.abs(pos.x - next.x) == delta || Math.abs(pos.y - next.y) == delta;
+}
+
+function moveCross(pos, next) {
+    const delta = 1;
+    return (
+        (Math.abs(this.x - next.x) == delta && this.y == next.y) 
+        || (Math.abs(this.y - next.y) == delta && this.x == next.x)
+    );
+}
+
 class Position {
     constructor(x, y) {    
         this.x = x;
@@ -39,15 +52,8 @@ class Position {
         this.y = y;
     }
 
-    offset(pos, delta) {
-        return Math.abs(this.x - pos.x) == delta || Math.abs(this.y - pos.y) == delta;
-    }
-
-    direct(pos, delta) {
-        return (
-            (Math.abs(this.x - pos.x) == delta && this.y == pos.y) 
-            || (Math.abs(this.y - pos.y) == delta && this.x == pos.x)
-        );
+    offset(pos, moves) {
+        return moves(this, pos);
     }
 }
 
@@ -133,15 +139,39 @@ class Rules {
 
 let rules = new Rules();
 
+// Есть группы правил
+// В каждой группе при ходе должно выполнятся одно из правил в кажой группе 
+// Для каждого правила есть условия когда оно выполняется в текущем или следующем ходу
+
+rules.addRule('player/empty', {
+    condition(player, game, next) {
+        return !player.hasGold() && game.is(next, 'card');
+    }
+})
+
+rules.addRule('player/gold', {
+    condition(player, game, next) {
+        return player.hasGold()
+            && game.is(next, 'card')
+            && game.isopen(next) 
+            && game.isfree(next);
+    }
+})
+
+rules.addRule('card/arrow->card', {
+    condition(player, game, next) {
+        var card = game.get(pos);
+        return game.subtype(pos, 'arrow') && pos.offset(next, card.directions);
+    }
+});
+
 /* Перемещение на карту */
-rules.addRule('card->card', {
+rules.addRule('card/card->card', {
     condition(player, game, next) {
         let pos = player.position;
         return (
-            !player.hasGold()
-            && game.is(pos, 'card') 
-            && game.is(next, 'card') 
-            && pos.offset(next, 1) 
+            game.is(pos, 'card') 
+            && pos.offset(next, moveAll) 
         );
     }, 
 
@@ -151,24 +181,7 @@ rules.addRule('card->card', {
     }
 });
 
-rules.addRule('gold->card', {
-    condition(player, game, next) {
-        let pos = player.position;
-        return (
-            player.hasGold() 
-            && game.is(next, 'card') 
-            && game.isopen(next) 
-            && game.isfree(next) 
-            && pos.offset(next, 1)
-        );
-    },
-
-    action(player, game, next) {
-        player.move(player.next);
-    }
-});
-
-rules.addRule('baloon->ship', {
+rules.addRule('card/baloon->ship', {
     active: 'entry',
     condition(player, game, next) {
         return game.is(player.position, 'baloon');
@@ -179,13 +192,13 @@ rules.addRule('baloon->ship', {
     }
 });
 
-rules.addRule('ship->card', {
+rules.addRule('card/ship->card', {
     condition(player, game, next) {
         let pos = player.position;        
         return (
             game.is(pos, 'ship') 
             && game.is(next, 'card') 
-            && pos.direct(next, 1)
+            && pos.offset(next, moveCross)
         );
     },
 
@@ -194,10 +207,10 @@ rules.addRule('ship->card', {
     }
 });
 
-rules.addRule('card->ship', {
+rules.addRule('card/card->ship', {
     condition(player, game, next) {
         let pos = player.position;       
-        return game.is(next, 'ship') && pos.offset(next, 1);
+        return game.is(next, 'ship') && pos.offset(next, moveAll);
     }, 
 
     action(player, game, next) {
@@ -205,7 +218,7 @@ rules.addRule('card->ship', {
     }
 });
 
-rules.addRule('alligator', {
+rules.addRule('card/alligator', {
     active: 'entry',
     condition(player, game, next) {
         let pos = player.position;
@@ -217,7 +230,7 @@ rules.addRule('alligator', {
     }
 });
 
-rules.addRule('ocean->ship', {
+rules.addRule('card/ocean->ship', {
     condition(player, game, next) {            
         let = pos = player.position;
         return game.is(pos, 'ocean') && game.is(next, 'ship') && pos.offset(next, 1);
@@ -227,7 +240,7 @@ rules.addRule('ocean->ship', {
     }
 });
 
-rules.addRule('ocean->ocean', {
+rules.addRule('card/ocean->ocean', {
     condition(player, game, next) {            
         let = pos = player.position;
         return game.is(pos, 'ocean') && game.is(next, 'ocean') && pos.offset(next, 1);
@@ -237,7 +250,7 @@ rules.addRule('ocean->ocean', {
     }
 });
 
-rules.addRule('card->ocean', {
+rules.addRule('card/card->ocean', {
     condition(player, game, next) {            
         return false;
     },

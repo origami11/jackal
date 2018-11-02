@@ -5,7 +5,8 @@ class Ship {
 }
 
 class Player {
-    constructor() {    
+    constructor() {
+        this.gold = false;    
         this.position = new Position(0, 0);
     }
 
@@ -18,7 +19,7 @@ class Player {
     }
 
     hasGold() {
-        return true;
+        return this.gold;
     }
 
     prevPos(steps) {
@@ -78,6 +79,15 @@ class GameRule {
     }
 }
 
+class Card {
+    constructor(name, x, y, open = true) {
+        this.name = name;
+        this.open = open;
+        this.x = x;
+        this.y = y;
+    }
+}
+
 class Rules {
     constructor() {    
         this.rules = [];
@@ -106,7 +116,8 @@ class Rules {
 //        if (!result) {
 //            throw new Error(`Нет подходящего правила для хода`);
 //        }
-        console.log(rules);
+//        console.log(rules);
+        return rules;
     }
 
     getRule(name) {
@@ -119,7 +130,6 @@ class Rules {
     }
 }
 
-let game = new Game();
 let rules = new Rules();
 
 /* Перемещение на карту */
@@ -208,26 +218,75 @@ rules.addRule('alligator', {
 
 rules.addRule('ocean->ship', {
     condition(player, game, next) {            
-        return false;
+        let = pos = player.pos;
+        return game.is(pos, 'ocean') && game.is(next, 'ship') && pos.offset(next, 1);
+    },
+
+    action(player, game, next) {
     }
 });
 
 rules.addRule('ocean->ocean', {
     condition(player, game, next) {            
-        return false;
+        let = pos = player.pos;
+        return game.is(pos, 'ocean') && game.is(next, 'ocean') && pos.offset(next, 1);
+    },
+
+    action(player, game, next) {
     }
 });
 
 rules.addRule('card->ocean', {
     condition(player, game, next) {            
         return false;
+    },
+
+    action(player, game, next) {
     }
 });
 
-// makeGameMap(['DDD', 'DDD, 'DDD'], {D: 'card'});
-// Случайно генерировать next. Если правило работает, то переходить на клетку
-var next = new Position(1, 2);
-var player = new Player();
-player.move(1, 1);
-rules.testRules(player, game, next);
+function makeGameMap(list, assoc) {
+    var result = [];
+    for(var i = 0; i < list.length; i++) {
+        var item = list[i];
+        result[i] = new Array();
+        for(var j = 0; j < item.length; j++) {
+            result[i][j] = assoc[item.charAt(j)](i, j);
+        }
+    }
+    return result;
+}
+
+var gameMap = makeGameMap(
+    ['CCC', 'CCC', 'CCC'], 
+    {
+        C: function (i, j) {
+            return new Card('default', i, j);
+        }
+    }
+);
+
+function assetRule(rules, value) {
+    for(var i in rules) {
+        if (i == value && !rules[i]) {
+            throw new Error(i + ' shold be true');
+        }
+        if (i != value && rules[i]) {
+            throw new Error(i + ' shold be false');
+        }
+    }
+    console.log('ok');
+}
+
+function testRule() {
+    let game = new Game(gameMap);
+    var next = new Position(1, 2);
+    var player = new Player();
+    player.move(1, 1);
+    var result = rules.testRules(player, game, next);
+
+    assetRule(result, 'card->card');
+}
+
+testRule();
 

@@ -12,6 +12,7 @@ class Player {
 
     move(x, y) {
         this.position.set(x, y);
+        return this;
     }
 
     getShip() {
@@ -51,17 +52,17 @@ class Position {
 }
 
 class Game {
-    constrcutor() {
-        this.gameMap = [];
+    constructor(gameMap) {
+        this.gameMap = gameMap;
         this.rules = null;
     }    
 
     is(pos, type) {
-        return type == 'card';
+        return this.gameMap[pos.y][pos.x].name == type;
     }
 
     isopen(pos) {
-        return true;
+        return this.gameMap[pos.y][pos.x].open;
     }
 
     isfree(pos) {
@@ -195,7 +196,7 @@ rules.addRule('ship->card', {
 
 rules.addRule('card->ship', {
     condition(player, game, next) {
-        let pos = player.location;       
+        let pos = player.position;       
         return game.is(next, 'ship') && pos.offset(next, 1);
     }, 
 
@@ -207,7 +208,7 @@ rules.addRule('card->ship', {
 rules.addRule('alligator', {
     active: 'entry',
     condition(player, game, next) {
-        let pos = player.location;
+        let pos = player.position;
         return game.is(pos, 'alligator');
     }, 
 
@@ -218,7 +219,7 @@ rules.addRule('alligator', {
 
 rules.addRule('ocean->ship', {
     condition(player, game, next) {            
-        let = pos = player.pos;
+        let = pos = player.position;
         return game.is(pos, 'ocean') && game.is(next, 'ship') && pos.offset(next, 1);
     },
 
@@ -228,7 +229,7 @@ rules.addRule('ocean->ship', {
 
 rules.addRule('ocean->ocean', {
     condition(player, game, next) {            
-        let = pos = player.pos;
+        let = pos = player.position;
         return game.is(pos, 'ocean') && game.is(next, 'ocean') && pos.offset(next, 1);
     },
 
@@ -257,16 +258,11 @@ function makeGameMap(list, assoc) {
     return result;
 }
 
-var gameMap = makeGameMap(
-    ['CCC', 'CCC', 'CCC'], 
-    {
-        C: function (i, j) {
-            return new Card('default', i, j);
-        }
-    }
-);
-
 function assetRule(rules, value) {
+    if (value != 'none' && !rules.hasOwnProperty(value)) {
+        throw new Error(value + ' unknown rule');
+    }
+
     for(var i in rules) {
         if (i == value && !rules[i]) {
             throw new Error(i + ' shold be true');
@@ -275,18 +271,86 @@ function assetRule(rules, value) {
             throw new Error(i + ' shold be false');
         }
     }
+
     console.log('ok');
+//    if (value == 'none') {
+//        console.log('ok');
+//    } else {
+//        throw new Error(value + ' unknown rule');
+//    }
 }
 
-function testRule() {
-    let game = new Game(gameMap);
-    var next = new Position(1, 2);
-    var player = new Player();
-    player.move(1, 1);
+function testRule(from, to, ruleName) {
+    player.move(from[0], from[1]);
+    var next = new Position(to[0], to[1]);
     var result = rules.testRules(player, game, next);
 
-    assetRule(result, 'card->card');
+    assetRule(result, ruleName);
 }
 
-testRule();
+var gameArr = [
+    '--ooooooooo--',
+    '-oXXXXXXXXXo-',
+    'oXXXXXXXXXXXo',
+    'oXXXXXXXXXXXo',
+    'oXXXXXXXXXXXo',
+    'oXXXXXXXXXXXo',
+    'SXXXXXXXXXXXo',
+    'oXXXXXXXXXXXo',
+    'oXXXXXXXXXXXo',
+    'oXXXXXXXXXXXo',
+    'oXXXXXXXXXXXo',
+    '-oXXXXXXXXXo-',
+    '--ooooooooo--'
+];
 
+var gameMap = makeGameMap(
+    gameArr, 
+    {
+        'X': function (i, j) {
+            return new Card('card', i, j);
+        },
+        'o': function (i, j) {
+            return new Card('ocean', i, j);
+        },
+        '-': function (i, j) {
+            return new Card('unknown', i, j);
+        },
+        'S': function (i, j) {
+            return new Card('ship', i, j);
+        }
+    }
+);
+
+let game = new Game(gameMap);
+var player = new Player();
+
+let tests = [{
+    from: [2, 2],
+    to: [2, 3],
+    rule: 'card->card'
+}, {
+    from: [2, 0],
+    to: [2, 1],
+    rule: 'none'
+}, {
+    from: [2, 0],
+    to: [3, 0],
+    rule: 'ocean->ocean'
+},{
+    from: [2, 0],
+    to: [4, 0],
+    rule: 'none'
+},{
+    from: [0, 6],
+    to: [1, 6],
+    rule: 'ship->card'
+},{
+    from: [0, 6],
+    to: [1, 5],
+    rule: 'none'
+}];
+
+tests.forEach(r => {
+    testRule(r.from, r.to, r.rule);
+});

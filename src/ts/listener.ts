@@ -1,3 +1,6 @@
+/*
+    Класс для работы с сообщениями
+*/
 export class Listener {
     public list;
     constructor() {

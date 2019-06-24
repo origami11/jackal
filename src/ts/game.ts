@@ -9,6 +9,12 @@ import { cellSize } from './options';
 
 import './cards/cardset.js';
 
+/*
+    Общая структура карты 
+    - Край карты 
+    o Водные области места для кораблей
+    X Место для карточек
+*/
 var gameMap = [
     '--ooooooooo--',
     '-oXXXXXXXXXo-',

@@ -1,3 +1,4 @@
+/* Функции для работы с dom */
 
 export function m(tag, className, style) {
     var element = document.createElement(tag);

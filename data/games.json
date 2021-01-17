@@ -1,6 +1,12 @@
 [   
     {
-        "users": ["phedor", "shasha", "phedor", "sasha"],
+        "players": 1,
+        "users": ["lite", "lite", "lite", "lite"],
         "id": "sample"
+    },
+    {
+        "players": 3,
+        "users": ["phedor", "shasha", "phedor", "sasha"],
+        "id": "abc"
     }
 ]

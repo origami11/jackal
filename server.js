@@ -19,16 +19,18 @@ class Game {
         var games = JSON.parse(fs.readFileSync(gamesFile, 'utf-8')); 
 
 //        this.users = names.split(',');
-        this.names = games.find(x => x.id == id).users;
+        var currentGame = games.find(x => x.id == id);
+        this.names = currentGame.users;
 
 //        var num = this.users.length;
-//        console.log(this.users, num);
+        this.numPlayers = currentGame.players; // Количество уникальных игроков
+        console.log(this.names, this.numPlayers);       
 
         this.list = [];
-        this.numPlayers = 4;
 
         this.recFile = 'data/games/'+this.id+'/step.log'; // Лог шагов
         var deckFile = 'data/games/'+this.id+'/deck.json'; // Доска 
+
 
         this.players = [null, null, null, null];
 

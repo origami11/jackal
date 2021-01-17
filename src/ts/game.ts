@@ -62,11 +62,12 @@ class GameBoard {
     public element: HTMLDivElement;
 
     public onmove: Listener;
+    public name;
 
     constructor(w, h, root, list, id, count, users, name) {
 
-        this.nodeInfo = document.getElementById('info');
-        this.nodeActions = document.getElementById('actions');
+        this.nodeInfo = document.getElementById('info') as HTMLDivElement;
+        this.nodeActions = document.getElementById('actions') as HTMLDivElement;
         this.root = root;
 
         this.id = id;
@@ -144,6 +145,7 @@ class GameBoard {
     allowMoveToCard(player, pirate, current, next, lastPos, x, y) {
         // Пират может передвигаться на карту 1. У него нет золота 2. Карта открыта
         let canMoveTo = next && next.allowMove(pirate);
+
         // Пират может передвигаться на карту если на ней стоит пират и у текущего пирата нет монеты или это специальная клетка                
         let canAttack = next ? next.allowWithPirates || (this.hasEnemyPirates(next) ? pirate.goldCount == 0 : true) : true;
 
@@ -200,9 +202,11 @@ class GameBoard {
             return false;
         }
 
+
         var next = this.getCard(x, y);
         var current = this.getCard(pirate.x, pirate.y);
         // Передвижение на другую клетку
+
         if (this.allowMoveToCard(player, pirate, current, next, this.lastPos, x, y)) {
             next.flip();
             this.lastPos.push({x: pirate.x, y: pirate.y, card: current});
@@ -380,8 +384,9 @@ class GameBoard {
     }
 
     onBoardClick = (event) => {
-        var x = Math.floor((event.clientX - this.element.offsetLeft) / cellSize) - 1;
-        var y = Math.floor((event.clientY - this.element.offsetTop) / cellSize) - 1;
+        var bounds = this.element.getBoundingClientRect();
+        var x = Math.floor((event.clientX - bounds.left) / cellSize) - 1;
+        var y = Math.floor((event.clientY - bounds.top) / cellSize) - 1;
                     
         var player = this.activePlayer;
         if (this.isActivePlayer(player)) {

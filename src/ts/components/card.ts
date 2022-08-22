@@ -1,5 +1,5 @@
-import { m } from '../utils';
-import { cellSize, debugGold } from '../options';
+import { m } from '../utils.js';
+import { cellSize, debugGold } from '../options.js';
 
 let factory = {};
 

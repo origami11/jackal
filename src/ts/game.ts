@@ -1,11 +1,11 @@
 ﻿//"use strict";
-import { m, h, patch } from './utils';
-import { Listener } from './listener';
+import { m, h, patch } from './utils.js';
+import { Listener } from './listener.js';
 
-import { Card, createCard } from './components/card';
-import { Player } from './components/player';
-import { Chat } from './components/chat';
-import { cellSize } from './options';
+import { Card, createCard } from './components/card.js';
+import { Player } from './components/player.js';
+import { Chat } from './components/chat.js';
+import { cellSize } from './options.js';
 
 import './cards/cardset.js';
 

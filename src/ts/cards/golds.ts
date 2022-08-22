@@ -1,4 +1,4 @@
-import { Card, registerCard } from '../components/card';
+import { Card, registerCard } from '../components/card.js';
 
 //@card('gold_01');
 class Gold1 extends Card {    

@@ -1,7 +1,7 @@
 
-import { Listener } from '../listener';
-import { Ship } from './ship';
-import { Pirate } from './pirate';
+import { Listener } from '../listener.js';
+import { Ship } from './ship.js';
+import { Pirate } from './pirate.js';
 
 export class Player {
     public friends: Array<Player>;

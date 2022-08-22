@@ -1,5 +1,5 @@
-import { m } from '../utils';
-import { Listener } from '../listener';
+import { m } from '../utils.js';
+import { Listener } from '../listener.js';
 
 export class Chat {
     list;

@@ -1,6 +1,6 @@
 
-import './arrows';
-import './rotates';
-import './empty';
-import './golds';
-import './specials';
+import './arrows.js';
+import './rotates.js';
+import './empty.js';
+import './golds.js';
+import './specials.js';

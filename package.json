@@ -5,9 +5,9 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "tsc": "tsc --noUnusedLocals --outFile public/js/game.js -m amd ./src/ts/game.ts",
-    "watch": "tsc --watch --noUnusedLocals --outFile public/js/game.js -m amd ./src/ts/game.ts",
-    "start": "node server.js"
+    "tsc": "tsc --noUnusedLocals --outDir public/js -m ESNext ./src/ts/game.ts",
+    "watch": "tsc --watch --noUnusedLocals --outDir public/js -m ESNext ./src/ts/game.ts",
+    "server": "node server.js"
   },
   "repository": {
     "type": "git",

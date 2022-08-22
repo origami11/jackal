@@ -1,4 +1,4 @@
-import { Card, registerCard } from '../components/card';
+import { Card, registerCard } from '../components/card.js';
 
 class Ice extends Card {
     constructor(rotN) { 

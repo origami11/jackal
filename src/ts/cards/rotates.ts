@@ -1,4 +1,4 @@
-import { Card, registerCard } from '../components/card';
+import { Card, registerCard } from '../components/card.js';
 
 export class RotateCard extends Card {
     public waitMoves;

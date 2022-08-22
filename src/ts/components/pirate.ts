@@ -1,5 +1,5 @@
-import { m } from '../utils';
-import { cellSize } from '../options';
+import { m } from '../utils.js';
+import { cellSize } from '../options.js';
 
 export class Pirate {
     public color;

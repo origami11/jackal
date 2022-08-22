@@ -85,5 +85,3 @@ function renderNode(root, dom) {
         root.appendChild(document.createTextNode(dom));
     }
 }
-
-

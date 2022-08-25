@@ -6,8 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "tsc": "tsc --noUnusedLocals --outDir public/js -m ESNext ./src/ts/game.ts",
+    "make-game": "node ./lib/genjson.mjs",
     "watch": "tsc --watch --noUnusedLocals --outDir public/js -m ESNext ./src/ts/game.ts",
-    "server": "node server.js"
+    "server": "node server.mjs"
   },
   "repository": {
     "type": "git",

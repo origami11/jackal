@@ -1,10 +1,13 @@
 ﻿// content of index.js
-const http = require('http')
-const url = require('url');
-const path = require('path');
-const fs = require('fs');
+import * as http from 'http';
+import * as url from 'url';
+import * as path from 'path';
+import * as fs from 'fs';
+import WebSocket from 'ws';
 
-const { makeRandomDeck } = require('./lib/deck.js');
+import { fileURLToPath } from 'url';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 
 const port = 3000;
 
@@ -41,18 +44,16 @@ class Game {
 
         if (fs.existsSync(this.recFile)) {
             this.list = fs.readFileSync(this.recFile, 'utf-8').split('\n').filter(x => x.length > 0); 
-            this.deck = JSON.parse(fs.readFileSync(deckFile, 'utf-8')); 
-        } else {          
-            this.deck = makeRandomDeck(this.width, this.height);
-            fs.writeFileSync(deckFile, JSON.stringify(this.deck)); 
+        } else {                      
             this.list = [];
         }
+        this.deck = JSON.parse(fs.readFileSync(deckFile, 'utf-8')); 
     }
 
-    setPlayer(ws) {
+    setPlayer(ws, name) {
         for(var i = 0; i < this.numPlayers; i++) {
             if (this.players[i] == null) {
-                this.players[i] = ws;
+                this.players[i] = {ws, name};
                 break;
             }
         }
@@ -60,7 +61,7 @@ class Game {
 
     clearPlayer(ws) {
         for(var i = 0; i < this.numPlayers; i++) {
-            if (this.players[i] == ws) {
+            if (this.players[i] && this.players[i].ws == ws) {
                 this.players[i] = null;
             }
         }
@@ -82,7 +83,36 @@ class Game {
 
     start() {        
         for(var i = 0; i < this.numPlayers; i++) {
-            this.players[i].send(JSON.stringify({action: 'start', data: {user: this.names[i], id: i+1, deck: this.deck, count: this.numPlayers, players: this.names, messages: this.list}}));
+            this.players[i].ws.send(JSON.stringify({action: 'start', data: {user: this.names[i], id: i+1, deck: this.deck, count: this.numPlayers, players: this.names, messages: this.list}}));
+        }
+    }
+
+    wait() {
+        let message = JSON.stringify({target: 'all', action: 'wait', data: { active: game.getPlayers(), players: this.names }});
+        this.resend('all', message, null);
+    }
+
+    getPlayers() {        
+        let names = [];
+        for(var i = 0; i < this.numPlayers; i++) {
+            if (this.players[i] !== null) {
+                names.push(this.players[i].name);
+            }
+        }
+        return names;
+    }
+
+    login(name) {
+        // Проверяем что есть свободные слоты и нужное имя
+        return !this.canStart() && this.names.includes(name);
+    }
+
+    resend(target, message, ws) {
+        for(var i = 0; i < this.numPlayers; i++) {
+            let client = this.players[i];
+            if (client && (target == 'all' ? true : client.ws !== ws) && client.ws.readyState === WebSocket.OPEN) {
+                client.ws.send(message);
+            }
         }
     }
 }
@@ -90,32 +120,45 @@ class Game {
 var game = new Game('sample');
 var requestCounter = 0;
 
-const WebSocket = require('ws');
 const wss = new WebSocket.Server({ port: 3001 });
 
-wss.on('connection', function connection(ws) {
-    game.setPlayer(ws);
-
-    var start = game.canStart(); 
-    console.log(start);
-    if (start) {
-        game.start();
+function wait(client) {
+    if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify({action: 'login', data: {text: 'Неверный логин или нет свободных слотов для игры'}}));
     }
+}
 
+wss.on('connection', function connection(ws) {    
     ws.on('message', function(message) {
-        game.addMessage(message)
         var m = JSON.parse(message);
-        console.log('broadcast', message, m.target);
-        // Посылаю сообщение всем
-        wss.clients.forEach(function (client) {
-            if ((m.target == 'all' ? true : client !== ws) && client.readyState === WebSocket.OPEN) {
-                client.send(message);
+        console.log('message', message, m.target);
+        
+        if (m.action == 'login') {
+            if (game.login(m.user)) {
+                game.setPlayer(ws, m.user);
+                if (game.canStart()) {
+                    game.start();
+                } else {
+                    game.wait();
+                }   
+            } else {
+                wait(ws);
             }
-        });
+            return;
+        }
+    
+        if (game.canStart()) { // Можем посылать сообщения только если есть все игроки
+            game.addMessage(message)    
+            // Посылаю сообщение всем
+            game.resend(m.target, message, ws);
+        }
     });
 
     ws.on('close', function() {
         game.clearPlayer(ws);
+        if (!game.canStart()) { // Посылаем всем игрокам сообщение об ожидании            
+            game.wait();
+        }
     });
 });
 
@@ -169,5 +212,5 @@ server.listen(port, (err) => {
     if (err) {
         return console.log('something bad happened', err)
     }
-    console.log(`server is listening on ${port}`)
+    console.log(`server is listening on http://localhost:${port}`);
 });

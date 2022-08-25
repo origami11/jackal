@@ -3,7 +3,7 @@ html, body {
     margin: 0;
     padding: 0;
     background: #7bd2d9;        
-    font-family: Tahoma;
+    font-family: Tahoma, sans-serif;
 }
 
 #root {
@@ -302,3 +302,12 @@ html, body {
     box-sizing: border-box;
 }
 
+.hide {
+    display: none;
+}
+
+#form {
+    width: 350px;
+    margin: 0 auto;
+    margin-top: 200px;
+}

@@ -11,13 +11,21 @@
 </style>
 </head>
 <body>
-    <div class="sidebar">
-        <div id="info"></div>
-        <div id="actions"></div>
-        <div id="chat"></div>
+    <div id="login" class="show">
+        <form id="form"><input placeholder="Имя игрока" name="login"/> <button class="btn">Продолжить</button></form>
     </div>
-    <div class="gameboard">
-        <div id="root"></div>
+    <div id="wait" class="hide">
+        <div id="users">Ожидаем остальных участников</div>
+    </div>
+    <div id="game" class="hide">
+        <div class="sidebar">
+            <div id="info"></div>
+            <div id="actions"></div>
+            <div id="chat"></div>
+        </div>
+        <div class="gameboard">
+            <div id="root"></div>
+        </div>
     </div>
 	<script src="js/game.js" type="module"></script>
 </body>

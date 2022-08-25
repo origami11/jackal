@@ -505,9 +505,32 @@ class GameBoard {
 let g: GameBoard = null;
 let chat: Chat = null;
 
+let st = {
+    game: document.getElementById('game'), 
+    login: document.getElementById('login'),  
+    wait: document.getElementById('wait'),  
+};
+
+function changeState(st, act) {
+    for(let n in st) {
+        if (n == act) {
+            st[n].classList.remove('hide');
+        } else {
+            st[n].classList.add('hide');
+        }
+    }
+}
+
 var actions = {
+    'login': (data) => {
+        changeState(st, 'login');
+    },
+    'wait': (data) => {
+        changeState(st, 'wait');
+    },
     // Начинаем игру
-    'start': (data) => {
+    'start': (data) => {        
+        changeState(st, 'game');
         // Создаем игровое поле
         if (!g) {
             var root = document.getElementById('root');
@@ -593,6 +616,7 @@ var actions = {
 
 function processMessages(event) {
     var msg = JSON.parse(event.data);
+    console.log('Event', msg);
     var action = msg.action;        
     var data = msg.data;        
     if (actions.hasOwnProperty(action)) {
@@ -618,9 +642,18 @@ window.sendActive = function (name, props = {}, tagret = 'all') {
 
 window.msgList = Object.keys(actions);
 
+let form = document.getElementById('form') as HTMLFormElement;
+form.onsubmit = (event) => {
+    event.preventDefault();    
+    var msg = JSON.stringify({action: 'login', user: form.elements['login'].value, target: 'self'});
+    console.log(msg);
+    socket.send(msg);
+    return false;
+}
+
 var socket = new WebSocket("ws://"+window.location.hostname+":3001");
 
 socket.onmessage = processMessages;
 socket.onopen = function (event) {
-    console.log('wait');
+    console.log('login!');
 };

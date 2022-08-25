@@ -1,12 +1,22 @@
 [   
     {
+        "id": "sample",
         "players": 1,
-        "users": ["lite", "lite", "lite", "lite"],
-        "id": "sample"
+        "users": ["user1", "user1", "user1", "user1"]
     },
     {
+        "id": "player2",
+        "players": 2,
+        "users": ["user1", "user2", "user1", "user2"]
+    },
+    {
+        "id": "player3",
         "players": 3,
-        "users": ["phedor", "sasha", "phedor", "sasha"],
-        "id": "abc"
+        "users": ["user1", "user2", "user1", "user3"]
+    },
+    {
+        "id": "player4",
+        "players": 4,
+        "users": ["user1", "user2", "user3", "user4"]
     }
 ]
